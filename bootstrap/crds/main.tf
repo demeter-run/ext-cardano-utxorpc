@@ -23,6 +23,11 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
         {
           "additionalPrinterColumns" = [
             {
+              "jsonPath" = ".spec.operatorVersion"
+              "name" = "Operator Version"
+              "type" = "string"
+            },
+            {
               "jsonPath" = ".spec.network"
               "name" = "Network"
               "type" = "string"
@@ -30,6 +35,11 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
             {
               "jsonPath" = ".spec.throughputTier"
               "name" = "Throughput Tier"
+              "type" = "string"
+            },
+            {
+              "jsonPath" = ".spec.utxorpcVersion"
+              "name" = "UtxoRPC Version"
               "type" = "string"
             },
             {
@@ -65,7 +75,6 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
                       "type" = "string"
                     }
                     "utxorpcVersion" = {
-                      "nullable" = true
                       "type" = "string"
                     }
                   }
@@ -73,6 +82,7 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
                     "network",
                     "operatorVersion",
                     "throughputTier",
+                    "utxorpcVersion",
                   ]
                   "type" = "object"
                 }

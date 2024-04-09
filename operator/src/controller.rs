@@ -33,8 +33,10 @@ impl Context {
 )]
 #[kube(status = "UtxoRpcPortStatus")]
 #[kube(printcolumn = r#"
+        {"name": "Operator Version", "jsonPath": ".spec.operatorVersion", "type": "string"},
         {"name": "Network", "jsonPath": ".spec.network", "type": "string"},
         {"name": "Throughput Tier", "jsonPath":".spec.throughputTier", "type": "string"}, 
+        {"name": "UtxoRPC Version", "jsonPath": ".spec.utxorpcVersion", "type": "string"},
         {"name": "Endpoint URL", "jsonPath": ".status.endpointUrl", "type": "string"},
         {"name": "Authenticated Endpoint URL", "jsonPath": ".status.authenticatedEndpointUrl", "type": "string"},
         {"name": "Auth Token", "jsonPath": ".status.authToken", "type": "string"}
