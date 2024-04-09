@@ -38,15 +38,9 @@ pub fn build_hostname(key: &str) -> (String, String) {
 }
 
 pub async fn build_api_key(crd: &UtxoRpcPort) -> Result<String, Error> {
-    let config = get_config();
-
     let namespace = crd.namespace().unwrap();
     let network = &crd.spec.network;
-    let version = crd
-        .spec
-        .utxorpc_version
-        .clone()
-        .unwrap_or(config.default_utxorpc_version.to_string());
+    let version = &crd.spec.utxorpc_version;
 
     let name = format!("utxorpc-auth-{}", &crd.name_any());
 
@@ -98,7 +92,7 @@ mod test {
                 operator_version: "1".to_string(),
                 network: "preview".to_string(),
                 throughput_tier: "0".to_string(),
-                utxorpc_version: Some("v1".to_string()),
+                utxorpc_version: "v1".to_string(),
             },
         );
         crd.metadata.namespace = Some("namespace".to_string());

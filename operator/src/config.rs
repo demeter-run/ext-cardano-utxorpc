@@ -17,7 +17,6 @@ pub struct Config {
     pub metrics_delay: Duration,
     pub prometheus_url: String,
     pub dcu_per_request: HashMap<String, f64>,
-    pub default_utxorpc_version: String,
 }
 
 impl Config {
@@ -45,7 +44,6 @@ impl Config {
                     (parts[0].into(), dcu)
                 })
                 .collect(),
-            default_utxorpc_version: env::var("DEFAULT_UTXORPC_VERSION").unwrap_or("v1".into()),
         }
     }
 }

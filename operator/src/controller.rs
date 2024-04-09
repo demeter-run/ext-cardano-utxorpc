@@ -44,7 +44,7 @@ pub struct UtxoRpcPortSpec {
     pub operator_version: String,
     pub network: String,
     pub throughput_tier: String,
-    pub utxorpc_version: Option<String>,
+    pub utxorpc_version: String,
 }
 
 #[derive(Deserialize, Serialize, Clone, Default, Debug, JsonSchema)]
