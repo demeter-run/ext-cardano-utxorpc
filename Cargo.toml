@@ -1,5 +1,6 @@
 [workspace]
 
 members = [
-    "operator",
+  "operator",
+  "proxy",
 ]
