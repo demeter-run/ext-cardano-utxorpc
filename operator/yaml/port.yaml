@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prj-mainnet-test
+---
+apiVersion: demeter.run/v1alpha1
+kind: UtxoRpcPort
+metadata:
+  name: utxorpc-port-a123ds
+  namespace: prj-mainnet-test
+spec:
+  operatorVersion: "1"
+  network: mainnet
+  throughputTier: "0"
+  utxorpcVersion: "v1"
