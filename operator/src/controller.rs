@@ -47,6 +47,7 @@ pub struct UtxoRpcPortSpec {
     pub network: String,
     pub throughput_tier: String,
     pub utxorpc_version: String,
+    pub auth_token: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone, Default, Debug, JsonSchema)]
@@ -58,7 +59,10 @@ pub struct UtxoRpcPortStatus {
 }
 
 async fn reconcile(crd: Arc<UtxoRpcPort>, ctx: Arc<Context>) -> Result<Action> {
-    let key = build_api_key(&crd).await?;
+    let key = match &crd.spec.auth_token {
+        Some(key) => key.clone(),
+        None => build_api_key(&crd).await?,
+    };
     let (hostname, hostname_key) = build_hostname(&key);
 
     let status = UtxoRpcPortStatus {
