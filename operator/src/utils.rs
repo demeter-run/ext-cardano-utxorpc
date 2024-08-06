@@ -38,15 +38,19 @@ pub fn build_hostname(key: &str) -> (String, String) {
 }
 
 pub async fn build_api_key(crd: &UtxoRpcPort) -> Result<String, Error> {
+    let config = get_config();
+
     let namespace = crd.namespace().unwrap();
     let network = &crd.spec.network;
-    let version = &crd.spec.utxorpc_version;
+    let version = crd
+        .spec
+        .utxorpc_version
+        .clone()
+        .unwrap_or(config.default_utxorpc_version.clone());
 
     let name = format!("utxorpc-auth-{}", &crd.name_any());
-
     let password = format!("{}{}", name, namespace).as_bytes().to_vec();
 
-    let config = get_config();
     let salt = config.api_key_salt.as_bytes();
 
     let mut output = vec![0; 8];
@@ -80,7 +84,7 @@ mod test {
         env::set_var("METRICS_DELAY", "100");
         env::set_var("PROMETHEUS_URL", "prometheus_url");
         env::set_var("DCU_PER_REQUEST", "preview=5,preprod=5,mainnet=5");
-        env::set_var("DEFAULT_UTXORPX_VERSION", "v1");
+        env::set_var("DEFAULT_UTXORPC_VERSION", "v1");
     }
 
     #[tokio::test]
@@ -89,10 +93,11 @@ mod test {
         let mut crd = UtxoRpcPort::new(
             "",
             UtxoRpcPortSpec {
+                auth_token: None,
                 operator_version: "1".to_string(),
                 network: "preview".to_string(),
-                throughput_tier: "0".to_string(),
-                utxorpc_version: "v1".to_string(),
+                throughput_tier: Some("0".to_string()),
+                utxorpc_version: Some("v1".to_string()),
             },
         );
         crd.metadata.namespace = Some("namespace".to_string());

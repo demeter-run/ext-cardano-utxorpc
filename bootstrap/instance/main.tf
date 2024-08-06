@@ -1,3 +1,7 @@
+locals {
+  instance = "${var.instance_name}-${var.salt}"
+}
+
 variable "namespace" {}
 
 variable "network" {
@@ -16,17 +20,9 @@ variable "replicas" {
   default = 1
 }
 
-variable "operator_version" {
-  type = string
-}
-
 variable "dolos_version" {
-  type = string
+  type    = string
   default = "v0.6.0"
-}
-
-variable "release" {
-  default = "stable"
 }
 
 variable "resources" {

@@ -1,0 +1,36 @@
+[upstream]
+peer_address = "${address}"
+network_magic = 1177
+network_id = 1
+phase1_validation_enabled = false
+
+[rolldb]
+path = "/var/data/rolldb"
+k_param = 1000
+
+[applydb]
+path = "/var/data/applydb"
+
+
+[serve.grpc]
+listen_address = "[::]:50051"
+
+[serve.ouroboros]
+listen_address = "localhost:30013"
+magic = 0
+
+[byron]
+path = "/etc/genesis/afvectest/byron.json"
+
+[shelley]
+path = "/etc/genesis/afvectest/shelley.json"
+
+[logging]
+max_level = "debug"
+
+[submit.grpc]
+listen_address = "[::]:50052"
+prune_after_confirmations = true
+# tls_client_ca_root: Option<PathBuf>,
+peer_addresses = ["85.90.225.26:7532"]
+peer_magic = 1177

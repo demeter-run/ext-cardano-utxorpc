@@ -29,32 +29,30 @@ impl Context {
     version = "v1alpha1",
     shortname = "utxoport",
     category = "demeter-port",
+    plural = "utxorpcports",
     namespaced
 )]
 #[kube(status = "UtxoRpcPortStatus")]
 #[kube(printcolumn = r#"
-        {"name": "Operator Version", "jsonPath": ".spec.operatorVersion", "type": "string"},
         {"name": "Network", "jsonPath": ".spec.network", "type": "string"},
         {"name": "Throughput Tier", "jsonPath":".spec.throughputTier", "type": "string"}, 
         {"name": "UtxoRPC Version", "jsonPath": ".spec.utxorpcVersion", "type": "string"},
-        {"name": "Endpoint URL", "jsonPath": ".status.endpointUrl", "type": "string"},
-        {"name": "Authenticated Endpoint URL", "jsonPath": ".status.authenticatedEndpointUrl", "type": "string"},
+        {"name": "Endpoint", "jsonPath": ".status.grpcEndpointUrl", "type": "string"},
         {"name": "Auth Token", "jsonPath": ".status.authToken", "type": "string"}
     "#)]
 #[serde(rename_all = "camelCase")]
 pub struct UtxoRpcPortSpec {
     pub operator_version: String,
     pub network: String,
-    pub throughput_tier: String,
-    pub utxorpc_version: String,
+    pub throughput_tier: Option<String>,
+    pub utxorpc_version: Option<String>,
     pub auth_token: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone, Default, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct UtxoRpcPortStatus {
-    pub endpoint_url: String,
-    pub authenticated_endpoint_url: Option<String>,
+    pub grpc_endpoint_url: String,
     pub auth_token: String,
 }
 
@@ -63,11 +61,10 @@ async fn reconcile(crd: Arc<UtxoRpcPort>, ctx: Arc<Context>) -> Result<Action> {
         Some(key) => key.clone(),
         None => build_api_key(&crd).await?,
     };
-    let (hostname, hostname_key) = build_hostname(&key);
+    let (hostname, _) = build_hostname(&key);
 
     let status = UtxoRpcPortStatus {
-        endpoint_url: format!("https://{hostname}",),
-        authenticated_endpoint_url: format!("https://{hostname_key}").into(),
+        grpc_endpoint_url: hostname,
         auth_token: key,
     };
 
