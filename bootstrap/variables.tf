@@ -29,6 +29,39 @@ variable "dns_zone" {
   default = "demeter.run"
 }
 
+// Proxy
+variable "proxy_image_tag" {
+  type = string
+}
+
+variable "proxy_replicas" {
+  type    = number
+  default = 1
+}
+
+variable "proxy_resources" {
+  type = object({
+    limits = object({
+      cpu    = string
+      memory = string
+    })
+    requests = object({
+      cpu    = string
+      memory = string
+    })
+  })
+  default = {
+    limits : {
+      cpu : "50m",
+      memory : "250Mi"
+    }
+    requests : {
+      cpu : "50m",
+      memory : "250Mi"
+    }
+  }
+}
+
 // Instances
 variable "instances" {
   type = map(object({

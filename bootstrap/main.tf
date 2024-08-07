@@ -33,6 +33,16 @@ module "services" {
   network   = each.value
 }
 
+module "proxy" {
+  depends_on = [kubernetes_namespace.namespace]
+  source     = "./proxy"
+
+  namespace = var.namespace
+  image_tag = var.proxy_image_tag
+  replicas  = var.proxy_replicas
+  resources = var.proxy_resources
+}
+
 module "instances" {
   depends_on = [module.utxorpc_feature, module.utxorpc_configs]
   for_each   = var.instances
