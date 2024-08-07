@@ -1,6 +1,5 @@
 resource "kubernetes_deployment_v1" "utxorpc_proxy" {
   wait_for_rollout = false
-  depends_on       = [kubernetes_manifest.certificate_cluster_wildcard_tls]
 
   metadata {
     name      = local.name
@@ -68,6 +67,11 @@ resource "kubernetes_deployment_v1" "utxorpc_proxy" {
           }
 
           env {
+            name  = "UTXORPC_DNS"
+            value = "${var.namespace}.svc.cluster.local"
+          }
+
+          env {
             name  = "SSL_CRT_PATH"
             value = "/certs/tls.crt"
           }
@@ -85,8 +89,8 @@ resource "kubernetes_deployment_v1" "utxorpc_proxy" {
 
         volume {
           name = "certs"
-          secret {
-            secret_name = local.certs_configmap
+          config_map {
+            name = local.certs_configmap
           }
         }
 

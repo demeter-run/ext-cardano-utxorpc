@@ -1,7 +1,7 @@
 resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_run" {
   manifest = {
     "apiVersion" = "apiextensions.k8s.io/v1"
-    "kind"       = "CustomResourceDefinition"
+    "kind" = "CustomResourceDefinition"
     "metadata" = {
       "name" = "utxorpcports.demeter.run"
     }
@@ -11,7 +11,7 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
         "categories" = [
           "demeter-port",
         ]
-        "kind"   = "UtxoRpcPort"
+        "kind" = "UtxoRpcPort"
         "plural" = "utxorpcports"
         "shortNames" = [
           "utxoport",
@@ -24,28 +24,28 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
           "additionalPrinterColumns" = [
             {
               "jsonPath" = ".spec.network"
-              "name"     = "Network"
-              "type"     = "string"
+              "name" = "Network"
+              "type" = "string"
             },
             {
               "jsonPath" = ".spec.throughputTier"
-              "name"     = "Throughput Tier"
-              "type"     = "string"
+              "name" = "Throughput Tier"
+              "type" = "string"
             },
             {
               "jsonPath" = ".spec.utxorpcVersion"
-              "name"     = "UtxoRPC Version"
-              "type"     = "string"
+              "name" = "UtxoRPC Version"
+              "type" = "string"
             },
             {
               "jsonPath" = ".status.grpcEndpointUrl"
-              "name"     = "Endpoint"
-              "type"     = "string"
+              "name" = "Endpoint"
+              "type" = "string"
             },
             {
               "jsonPath" = ".status.authToken"
-              "name"     = "Auth Token"
-              "type"     = "string"
+              "name" = "Auth Token"
+              "type" = "string"
             },
           ]
           "name" = "v1alpha1"
@@ -57,7 +57,7 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
                   "properties" = {
                     "authToken" = {
                       "nullable" = true
-                      "type"     = "string"
+                      "type" = "string"
                     }
                     "network" = {
                       "type" = "string"
@@ -67,11 +67,11 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
                     }
                     "throughputTier" = {
                       "nullable" = true
-                      "type"     = "string"
+                      "type" = "string"
                     }
                     "utxorpcVersion" = {
                       "nullable" = true
-                      "type"     = "string"
+                      "type" = "string"
                     }
                   }
                   "required" = [
@@ -89,16 +89,10 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
                     "grpcEndpointUrl" = {
                       "type" = "string"
                     }
-                    "observedGeneration" = {
-                      "format"  = "uint"
-                      "minimum" = 0
-                      "type"    = "integer"
-                    }
                   }
                   "required" = [
                     "authToken",
                     "grpcEndpointUrl",
-                    "observedGeneration",
                   ]
                   "type" = "object"
                 }
@@ -107,10 +101,10 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
                 "spec",
               ]
               "title" = "UtxoRpcPort"
-              "type"  = "object"
+              "type" = "object"
             }
           }
-          "served"  = true
+          "served" = true
           "storage" = true
           "subresources" = {
             "status" = {}

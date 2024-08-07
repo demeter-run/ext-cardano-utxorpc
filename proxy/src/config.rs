@@ -7,6 +7,7 @@ pub struct Config {
     pub prometheus_addr: String,
     pub ssl_crt_path: String,
     pub ssl_key_path: String,
+    pub utxorpc_dns: String,
     pub utxorpc_port: u16,
     pub health_endpoint: String,
 }
@@ -18,6 +19,7 @@ impl Config {
             prometheus_addr: env::var("PROMETHEUS_ADDR").expect("PROMETHEUS_ADDR must be set"),
             ssl_crt_path: env::var("SSL_CRT_PATH").expect("SSL_CRT_PATH must be set"),
             ssl_key_path: env::var("SSL_KEY_PATH").expect("SSL_KEY_PATH must be set"),
+            utxorpc_dns: env::var("UTXORPC_DNS").expect("UTXORPC_DNS must be set"),
             utxorpc_port: env::var("UTXORPC_PORT")
                 .unwrap_or("50051".to_string())
                 .parse()

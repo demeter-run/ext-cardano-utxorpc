@@ -73,10 +73,9 @@ impl ProxyHttp for UtxoRpcProxy {
 
         ctx.consumer = consumer.unwrap();
         ctx.instance = format!(
-            "utxorpc-{}-grpc:{}",
-            ctx.consumer.network, self.config.utxorpc_port
+            "utxorpc-{}-grpc.{}:{}",
+            ctx.consumer.network, self.config.utxorpc_dns, self.config.utxorpc_port
         );
-        ctx.instance = "localhost:50051".into();
 
         Ok(false)
     }

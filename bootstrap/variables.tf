@@ -8,7 +8,7 @@ variable "networks" {
 }
 
 variable "network_addresses" {
-  type    = map(string, string)
+  type    = map(string)
   default = {}
 }
 

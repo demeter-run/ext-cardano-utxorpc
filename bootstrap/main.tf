@@ -44,15 +44,28 @@ module "proxy" {
 }
 
 module "instances" {
-  depends_on = [module.utxorpc_feature, module.utxorpc_configs]
+  depends_on = [module.feature, module.configs]
   for_each   = var.instances
   source     = "./instance"
 
   namespace     = var.namespace
-  network       = each.network
+  network       = each.value.network
   salt          = each.key
-  instance_name = "${each.value.network}-${each.value.salt}"
-  dolos_version = each.value.dolos_version
-  replicas      = each.value.replicas
-  resources     = each.value.resources
+  instance_name = "${each.value.network}-${each.key}"
+  dolos_version = coalesce(each.value.dolos_version, "v0.13.1")
+  replicas      = coalesce(each.value.replicas, 1)
+  resources = coalesce(each.value.resources, {
+    requests = {
+      cpu    = "50m"
+      memory = "512Mi"
+    }
+    limits = {
+      cpu    = "1000m"
+      memory = "512Mi"
+    }
+    storage = {
+      size  = "30Gi"
+      class = "fast"
+    }
+  })
 }

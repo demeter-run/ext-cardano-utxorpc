@@ -21,8 +21,7 @@ variable "replicas" {
 }
 
 variable "dolos_version" {
-  type    = string
-  default = "v0.6.0"
+  type = string
 }
 
 variable "resources" {

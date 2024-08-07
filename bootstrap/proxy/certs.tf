@@ -5,7 +5,7 @@ resource "kubernetes_config_map" "proxy-certs" {
   }
 
   data = {
-    localhost.crt = file("${path.module}/tls.crt")
-    localhost.key = file("${path.module}/tls.key")
+    "tls.crt" = file("${path.module}/tls.crt")
+    "tls.key" = file("${path.module}/tls.key")
   }
 }

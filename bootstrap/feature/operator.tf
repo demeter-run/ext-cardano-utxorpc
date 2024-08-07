@@ -31,9 +31,8 @@ resource "kubernetes_deployment_v1" "operator" {
 
       spec {
         container {
-          image   = "ghcr.io/demeter-run/cardano-utxorpc-operator:${var.operator_image_tag}"
-          name    = "main"
-          command = ["npm", "run", "start"]
+          image = "ghcr.io/demeter-run/ext-cardano-utxorpc-operator:${var.operator_image_tag}"
+          name  = "main"
 
           env {
             name  = "ADDR"
