@@ -43,6 +43,20 @@ module "proxy" {
   resources = var.proxy_resources
 }
 
+module "cloudflared" {
+  depends_on = [module.proxy]
+  source     = "./cloudflared"
+
+  namespace               = var.namespace
+  tunnel_id               = var.cloudflared_tunnel_id
+  hostname                = var.cloudflared_hostname
+  credentials_secret_name = var.cloudflared_credentials_secret_name
+  metrics_port            = var.cloudflared_metrics_port
+  image_tag               = var.cloudflared_image_tag
+  replicas                = var.cloudflared_replicas
+  resources               = var.cloudflared_resources
+}
+
 module "instances" {
   depends_on = [module.feature, module.configs]
   for_each   = var.instances
