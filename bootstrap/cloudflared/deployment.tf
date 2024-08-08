@@ -1,5 +1,6 @@
 resource "kubernetes_deployment" "cloudflared" {
   wait_for_rollout = false
+  depends_on       = [kubernetes_secret.tunnel_credentials]
 
   metadata {
     name      = "cloudflared"
@@ -86,7 +87,7 @@ resource "kubernetes_deployment" "cloudflared" {
         volume {
           name = "creds"
           secret {
-            secret_name = var.credentials_secret_name
+            secret_name = local.credentials_secret_name
           }
         }
 

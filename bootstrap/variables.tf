@@ -67,13 +67,14 @@ variable "cloudflared_tunnel_id" {
   type = string
 }
 
-variable "cloudflared_hostname" {
-  type = string
+variable "cloudflared_tunnel_secret" {
+  type        = string
+  description = "TunnelSecret, written on credentials file."
 }
 
-variable "cloudflared_credentials_secret_name" {
+variable "cloudflared_account_tag" {
   type        = string
-  description = "Name of the secret where credentials.json is saved."
+  description = "AccountTag, written on credentials file."
 }
 
 variable "cloudflared_metrics_port" {

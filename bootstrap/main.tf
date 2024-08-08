@@ -1,11 +1,11 @@
-resource "kubernetes_namespace" "namespace" {
+resource "kubernetes_namespace_v1" "namespace" {
   metadata {
     name = var.namespace
   }
 }
 
 module "feature" {
-  depends_on = [kubernetes_namespace.namespace]
+  depends_on = [kubernetes_namespace_v1.namespace]
   source     = "./feature"
 
   namespace           = var.namespace
@@ -25,7 +25,7 @@ module "configs" {
 }
 
 module "services" {
-  depends_on = [kubernetes_namespace.namespace]
+  depends_on = [kubernetes_namespace_v1.namespace]
   for_each   = { for network in var.networks : "${network}" => network }
   source     = "./service"
 
@@ -34,7 +34,7 @@ module "services" {
 }
 
 module "proxy" {
-  depends_on = [kubernetes_namespace.namespace]
+  depends_on = [kubernetes_namespace_v1.namespace]
   source     = "./proxy"
 
   namespace = var.namespace
@@ -47,14 +47,15 @@ module "cloudflared" {
   depends_on = [module.proxy]
   source     = "./cloudflared"
 
-  namespace               = var.namespace
-  tunnel_id               = var.cloudflared_tunnel_id
-  hostname                = var.cloudflared_hostname
-  credentials_secret_name = var.cloudflared_credentials_secret_name
-  metrics_port            = var.cloudflared_metrics_port
-  image_tag               = var.cloudflared_image_tag
-  replicas                = var.cloudflared_replicas
-  resources               = var.cloudflared_resources
+  namespace     = var.namespace
+  tunnel_id     = var.cloudflared_tunnel_id
+  hostname      = "${var.extension_subdomain}.${var.dns_zone}"
+  tunnel_secret = var.cloudflared_tunnel_secret
+  account_tag   = var.cloudflared_account_tag
+  metrics_port  = var.cloudflared_metrics_port
+  image_tag     = var.cloudflared_image_tag
+  replicas      = var.cloudflared_replicas
+  resources     = var.cloudflared_resources
 }
 
 module "instances" {

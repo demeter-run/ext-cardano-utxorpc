@@ -48,7 +48,12 @@ variable "resources" {
   }
 }
 
-variable "credentials_secret_name" {
+variable "account_tag" {
   type    = string
-  default = "Name of the K8s secret where the credentials.json is stored."
+  default = "AccountTag, written on credentials json."
+}
+
+variable "tunnel_secret" {
+  type    = string
+  default = "TunnelSecret, written on credentials json."
 }

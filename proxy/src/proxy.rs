@@ -31,12 +31,12 @@ impl UtxoRpcProxy {
     async fn respond_health(&self, session: &mut Session, ctx: &mut Context) {
         ctx.is_health_request = true;
         session.set_keepalive(None);
+        let header = Box::new(ResponseHeader::build(200, None).unwrap());
+        session.write_response_header(header, true).await.unwrap();
         session
             .write_response_body(Some(Bytes::from("OK")), true)
             .await
             .unwrap();
-        let header = Box::new(ResponseHeader::build(200, None).unwrap());
-        session.write_response_header(header, true).await.unwrap();
     }
 }
 
