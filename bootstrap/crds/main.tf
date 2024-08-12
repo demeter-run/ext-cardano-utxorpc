@@ -63,6 +63,7 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
                       "type" = "string"
                     }
                     "operatorVersion" = {
+                      "nullable" = true
                       "type" = "string"
                     }
                     "throughputTier" = {
@@ -76,7 +77,6 @@ resource "kubernetes_manifest" "customresourcedefinition_utxorpcports_demeter_ru
                   }
                   "required" = [
                     "network",
-                    "operatorVersion",
                   ]
                   "type" = "object"
                 }

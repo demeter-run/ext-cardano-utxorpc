@@ -42,7 +42,7 @@ impl Context {
     "#)]
 #[serde(rename_all = "camelCase")]
 pub struct UtxoRpcPortSpec {
-    pub operator_version: String,
+    pub operator_version: Option<String>,
     pub network: String,
     pub throughput_tier: Option<String>,
     pub utxorpc_version: Option<String>,
