@@ -15,7 +15,6 @@ module "proxy" {
   image_tag       = var.proxy_image_tag
   replicas        = var.proxy_replicas
   resources       = var.proxy_resources
-  tolerations     = var.tolerations
   salt            = var.salt
   certs_configmap = var.certs_configmap
 }

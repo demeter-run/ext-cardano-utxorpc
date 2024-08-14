@@ -44,6 +44,10 @@ variable "cloudflared_account_tag" {
   description = "AccountTag, written on credentials file."
 }
 
+variable "proxy_image_tag" {
+  type = string
+}
+
 variable "cells" {
   type = map(object({
     tolerations = optional(list(object({
@@ -57,8 +61,8 @@ variable "cells" {
       storage_size  = string
       volume_name   = string
     })
-    proxy = object({
-      image_tag = string
+    proxy = optional(object({
+      image_tag = optional(string)
       replicas  = optional(number)
       resources = optional(object({
         limits = object({
@@ -70,7 +74,7 @@ variable "cells" {
           memory = string
         })
       }))
-    })
+    }))
     cloudflared = optional(object({
       image_tag = optional(string)
       replicas  = optional(number)

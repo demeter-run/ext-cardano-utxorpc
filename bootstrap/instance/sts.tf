@@ -29,36 +29,32 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
       }
       spec {
         # @TODO: once the bootstrap command works in non-interactive, we can restore this.
-        init_container {
-          name  = "init"
-          image = "ghcr.io/txpipe/dolos:${var.dolos_version}"
-          args = [
-            "-c",
-            "/etc/config/dolos.toml",
-            "bootstrap",
-            "--download-dir",
-            "/var/data/${var.network}/snapshot",
-            # "/var/snapshot",
-            "--skip-if-not-empty",
-            # "--skip-download",
-          ]
-          resources {
-            limits   = var.resources.limits
-            requests = var.resources.requests
-          }
-          volume_mount {
-            name       = "config"
-            mount_path = "/etc/config"
-          }
-          volume_mount {
-            name       = "data"
-            mount_path = "/var/data"
-          }
-          # volume_mount {
-          #   name       = "snapshot"
-          #   mount_path = "/var/snapshot"
-          # }
-        }
+        # init_container {
+        #   name  = "init"
+        #   image = "ghcr.io/txpipe/dolos:${var.dolos_version}"
+        #   # command = ["sleep", "infinity"]
+        #   # args = [
+        #   #   "-c",
+        #   #   "/etc/config/dolos.toml",
+        #   #   "bootstrap",
+        #   #   "--download-dir",
+        #   #   "/var/data/${var.network}/snapshot",
+        #   #   "--skip-if-not-empty",
+        #   #   # "--skip-download",
+        #   # ]
+        #   resources {
+        #     limits   = var.resources.limits
+        #     requests = var.resources.requests
+        #   }
+        #   volume_mount {
+        #     name       = "config"
+        #     mount_path = "/etc/config"
+        #   }
+        #   volume_mount {
+        #     name       = "data"
+        #     mount_path = "/var/data"
+        #   }
+        # }
         container {
           name  = local.instance
           image = "ghcr.io/txpipe/dolos:${var.dolos_version}"
@@ -67,7 +63,6 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
             "/etc/config/dolos.toml",
             "daemon"
           ]
-          # command = ["sleep", "infinity"]
           resources {
             limits   = var.resources.limits
             requests = var.resources.requests
@@ -94,12 +89,6 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
             name       = "config"
             mount_path = "/etc/config"
           }
-
-          # volume_mount {
-          #   name       = "snapshot"
-          #   mount_path = "/var/snapshot"
-          # }
-
         }
 
         volume {

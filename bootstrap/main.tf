@@ -47,19 +47,19 @@ module "cells" {
       effect   = "NoSchedule"
       key      = "demeter.run/compute-profile"
       operator = "Equal"
-      value    = "general-purpose"
+      value    = "disk-intensive"
     },
     {
       effect   = "NoSchedule"
       key      = "demeter.run/compute-arch"
       operator = "Equal"
-      value    = "x86"
+      value    = "arm64"
     },
     {
       effect   = "NoSchedule"
       key      = "demeter.run/availability-sla"
       operator = "Equal"
-      value    = "best-effort"
+      value    = "consistent"
     }
   ])
 
@@ -69,7 +69,7 @@ module "cells" {
   volume_name   = each.value.pvc.volume_name
 
   // Proxy
-  proxy_image_tag = each.value.proxy.image_tag
+  proxy_image_tag = try(each.value.proxy.image_tag, var.proxy_image_tag)
   proxy_replicas  = try(each.value.proxy.replicas, 1)
   proxy_resources = try(each.value.proxy.resoures, {
     limits : {

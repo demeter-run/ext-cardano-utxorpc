@@ -43,19 +43,19 @@ variable "tolerations" {
       effect   = "NoSchedule"
       key      = "demeter.run/compute-profile"
       operator = "Equal"
-      value    = "general-purpose"
+      value    = "disk-intensive"
     },
     {
       effect   = "NoSchedule"
       key      = "demeter.run/compute-arch"
       operator = "Equal"
-      value    = "x86"
+      value    = "arm64"
     },
     {
       effect   = "NoSchedule"
       key      = "demeter.run/availability-sla"
       operator = "Equal"
-      value    = "best-effort"
+      value    = "consistent"
     }
   ]
 }
