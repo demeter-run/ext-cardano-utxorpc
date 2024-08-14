@@ -2,6 +2,10 @@ variable "namespace" {
   type = string
 }
 
+variable "salt" {
+  type = string
+}
+
 variable "tunnel_id" {
   type = string
 }
@@ -23,6 +27,35 @@ variable "image_tag" {
 variable "replicas" {
   type    = number
   default = 2
+}
+
+variable "tolerations" {
+  type = list(object({
+    effect   = string
+    key      = string
+    operator = string
+    value    = string
+  }))
+  default = [
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-profile"
+      operator = "Equal"
+      value    = "general-purpose"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-arch"
+      operator = "Equal"
+      value    = "x86"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/availability-sla"
+      operator = "Equal"
+      value    = "best-effort"
+    }
+  ]
 }
 
 variable "resources" {

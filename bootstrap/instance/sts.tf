@@ -14,21 +14,6 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
     replicas     = var.replicas
     service_name = "utxorpc"
 
-    volume_claim_template {
-      metadata {
-        name = "data"
-      }
-      spec {
-        access_modes = ["ReadWriteOnce"]
-        resources {
-          requests = {
-            storage = var.resources.storage.size
-          }
-        }
-        storage_class_name = var.resources.storage.class
-      }
-    }
-
     selector {
       match_labels = {
         "demeter.run/instance"        = local.instance
@@ -52,7 +37,10 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
             "/etc/config/dolos.toml",
             "bootstrap",
             "--download-dir",
-            "/var/data/snapshot",
+            "/var/data/${var.network}/snapshot",
+            # "/var/snapshot",
+            "--skip-if-not-empty",
+            # "--skip-download",
           ]
           resources {
             limits   = var.resources.limits
@@ -66,6 +54,10 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
             name       = "data"
             mount_path = "/var/data"
           }
+          # volume_mount {
+          #   name       = "snapshot"
+          #   mount_path = "/var/snapshot"
+          # }
         }
         container {
           name  = local.instance
@@ -97,11 +89,24 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
             name       = "data"
             mount_path = "/var/data"
           }
+
           volume_mount {
             name       = "config"
             mount_path = "/etc/config"
           }
 
+          # volume_mount {
+          #   name       = "snapshot"
+          #   mount_path = "/var/snapshot"
+          # }
+
+        }
+
+        volume {
+          name = "data"
+          persistent_volume_claim {
+            claim_name = var.pvc_name
+          }
         }
 
         volume {
@@ -112,23 +117,15 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
         }
 
         termination_grace_period_seconds = 180
-        toleration {
-          effect   = "NoSchedule"
-          key      = "demeter.run/compute-profile"
-          operator = "Exists"
-        }
+        dynamic "toleration" {
+          for_each = var.tolerations
 
-        toleration {
-          effect   = "NoSchedule"
-          key      = "demeter.run/compute-arch"
-          operator = "Equal"
-          value    = "arm64"
-        }
-
-        toleration {
-          effect   = "NoSchedule"
-          key      = "demeter.run/availability-sla"
-          operator = "Exists"
+          content {
+            effect   = toleration.value.effect
+            key      = toleration.value.key
+            operator = toleration.value.operator
+            value    = toleration.value.value
+          }
         }
       }
     }

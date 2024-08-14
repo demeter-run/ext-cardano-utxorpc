@@ -15,6 +15,11 @@ variable "extension_subdomain" {
   default = "utxorpc-m0"
 }
 
+variable "certs_configmap" {
+  type    = string
+  default = "proxy-certs"
+}
+
 variable "dns_zone" {
   default = "demeter.run"
 }

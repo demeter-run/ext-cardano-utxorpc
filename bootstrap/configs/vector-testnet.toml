@@ -5,11 +5,11 @@ network_id = 1
 phase1_validation_enabled = false
 
 [rolldb]
-path = "/var/data/rolldb"
+path = "/var/data/vector-testnet/rolldb"
 k_param = 1000
 
 [applydb]
-path = "/var/data/applydb"
+path = "/var/data/vector-testnet/applydb"
 
 
 [serve.grpc]

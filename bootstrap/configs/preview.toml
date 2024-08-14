@@ -4,7 +4,7 @@ network_magic = 2
 is_testnet = true
 
 [storage]
-path = "/var/data/db"
+path = "/var/data/preview/db"
 
 [genesis]
 byron_path = "/etc/genesis/preview/byron.json"

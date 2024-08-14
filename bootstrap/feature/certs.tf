@@ -1,7 +1,7 @@
 resource "kubernetes_config_map" "proxy-certs" {
   metadata {
     namespace = var.namespace
-    name      = local.certs_configmap
+    name      = var.certs_configmap
   }
 
   data = {

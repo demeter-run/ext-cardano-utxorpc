@@ -4,7 +4,7 @@ network_magic = 764824073
 is_testnet = false
 
 [storage]
-path = "/var/data/db"
+path = "/var/data/mainnet/db"
 
 [genesis]
 byron_path = "/etc/genesis/mainnet/byron.json"

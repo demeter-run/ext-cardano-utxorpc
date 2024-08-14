@@ -12,6 +12,10 @@ variable "salt" {
   type = string
 }
 
+variable "pvc_name" {
+  type = string
+}
+
 variable "instance_name" {
   type = string
 }
@@ -24,6 +28,35 @@ variable "dolos_version" {
   type = string
 }
 
+variable "tolerations" {
+  type = list(object({
+    effect   = string
+    key      = string
+    operator = string
+    value    = string
+  }))
+  default = [
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-profile"
+      operator = "Equal"
+      value    = "general-purpose"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-arch"
+      operator = "Equal"
+      value    = "x86"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/availability-sla"
+      operator = "Equal"
+      value    = "best-effort"
+    }
+  ]
+}
+
 variable "resources" {
   type = object({
     limits = object({
@@ -33,10 +66,6 @@ variable "resources" {
     requests = object({
       cpu    = string
       memory = string
-    })
-    storage = object({
-      size  = string
-      class = string
     })
   })
   default = {
@@ -48,11 +77,6 @@ variable "resources" {
       cpu    = "1000m"
       memory = "512Mi"
     }
-    storage = {
-      size  = "30Gi"
-      class = "fast"
-    }
-
   }
 }
 
