@@ -14,9 +14,9 @@ resource "kubernetes_config_map" "tunnel-config" {
       tunnel_id    = var.tunnel_id
       metrics_port = var.metrics_port
       hostname     = var.hostname
-      service      = "proxy"
       namespace    = var.namespace
       port         = 8080
+      networks     = var.networks
     })}"
   }
 }

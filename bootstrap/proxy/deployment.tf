@@ -55,6 +55,11 @@ resource "kubernetes_deployment_v1" "utxorpc_proxy" {
           }
 
           env {
+            name  = "NETWORK"
+            value = var.network
+          }
+
+          env {
             name  = "PROXY_NAMESPACE"
             value = var.namespace
           }

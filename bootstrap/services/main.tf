@@ -53,8 +53,10 @@ resource "kubernetes_service_v1" "well_known_service_grpc_web" {
 }
 
 resource "kubernetes_service_v1" "proxies" {
+  for_each = { for network in var.networks : "${network}" => network }
+
   metadata {
-    name      = "proxy"
+    name      = "proxy-${each.value}"
     namespace = var.namespace
     # annotations = {
     #   "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type" : "instance"
@@ -68,7 +70,7 @@ resource "kubernetes_service_v1" "proxies" {
   spec {
     # load_balancer_class = "service.k8s.aws/nlb"
     selector = {
-      role = "proxy"
+      role = "proxy-${each.value}"
     }
 
     port {

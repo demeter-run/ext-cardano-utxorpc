@@ -1,3 +1,7 @@
+locals {
+  networks = var.instances.keys
+}
+
 module "pvc" {
   source = "../pvc"
 
@@ -9,9 +13,11 @@ module "pvc" {
 }
 
 module "proxy" {
-  source = "../proxy"
+  source   = "../proxy"
+  for_each = var.instances
 
   namespace       = var.namespace
+  network         = each.key
   image_tag       = var.proxy_image_tag
   replicas        = var.proxy_replicas
   resources       = var.proxy_resources
@@ -23,6 +29,7 @@ module "cloudflared" {
   source = "../cloudflared"
 
   namespace     = var.namespace
+  networks      = local.networks
   tunnel_id     = var.cloudflared_tunnel_id
   hostname      = "${var.extension_subdomain}.${var.dns_zone}"
   tunnel_secret = var.cloudflared_tunnel_secret

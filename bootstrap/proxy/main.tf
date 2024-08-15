@@ -1,6 +1,6 @@
 locals {
-  name = "proxy-${var.salt}"
-  role = "proxy"
+  name = "proxy-${var.salt}-${var.network}"
+  role = "proxy-${var.network}"
 
   prometheus_port = 9187
   prometheus_addr = "0.0.0.0:${local.prometheus_port}"
@@ -9,6 +9,10 @@ locals {
 }
 
 variable "namespace" {
+  type = string
+}
+
+variable "network" {
   type = string
 }
 

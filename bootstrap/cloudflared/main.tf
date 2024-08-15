@@ -2,6 +2,10 @@ variable "namespace" {
   type = string
 }
 
+variable "networks" {
+  type = list(string)
+}
+
 variable "salt" {
   type = string
 }

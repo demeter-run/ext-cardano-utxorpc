@@ -27,12 +27,12 @@ pub async fn patch_resource_status(
     Ok(())
 }
 
-pub fn build_hostname(key: &str) -> (String, String) {
+pub fn build_hostname(key: &str, network: &str) -> (String, String) {
     let config = get_config();
     let extension_subdomain = &config.extension_subdomain;
     let dns_zone = &config.dns_zone;
-    let hostname = format!("{extension_subdomain}.{dns_zone}");
-    let hostname_key = format!("{key}.{extension_subdomain}.{dns_zone}");
+    let hostname = format!("{network}-{extension_subdomain}.{dns_zone}");
+    let hostname_key = format!("{key}.{network}-{extension_subdomain}.{dns_zone}");
 
     (hostname, hostname_key)
 }
@@ -94,7 +94,7 @@ mod test {
             "",
             UtxoRpcPortSpec {
                 auth_token: None,
-                operator_version: "1".to_string(),
+                operator_version: Some("1".to_string()),
                 network: "preview".to_string(),
                 throughput_tier: Some("0".to_string()),
                 utxorpc_version: Some("v1".to_string()),
@@ -110,12 +110,12 @@ mod test {
     async fn test_build_hostname() {
         set_configs();
         let key = "dmtr_utxorpc_v1_preview_ashjdcnoasdj";
-        let (hostname, hostname_key) = build_hostname(key);
+        let (hostname, hostname_key) = build_hostname(key, "mainnet");
 
-        assert_eq!(hostname, "extension_subdomain.dns_zone".to_string());
+        assert_eq!(hostname, "mainnet-extension_subdomain.dns_zone".to_string());
         assert_eq!(
             hostname_key,
-            "dmtr_utxorpc_v1_preview_ashjdcnoasdj.extension_subdomain.dns_zone".to_string()
+            "dmtr_utxorpc_v1_preview_ashjdcnoasdj.mainnet-extension_subdomain.dns_zone".to_string()
         );
     }
 }

@@ -15,9 +15,11 @@ no-autoupdate: true
 # from the internet to cloudflared, run `cloudflared tunnel route dns <tunnel> <hostname>`.
 # E.g. `cloudflared tunnel route dns example-tunnel tunnel.example.com`.
 ingress:
-  - hostname: ${hostname}
-    service: https://${service}.${namespace}.svc.cluster.local:${port}
+%{ for network in networks ~}
+  - hostname: ${network}-${hostname}
+    service: https://proxy-${network}.${namespace}.svc.cluster.local:${port}
     originRequest:
       noTLSVerify: true
       http2Origin: true
+%{ endfor ~}
   - service: http_status:404

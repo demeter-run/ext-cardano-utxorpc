@@ -61,7 +61,7 @@ async fn reconcile(crd: Arc<UtxoRpcPort>, ctx: Arc<Context>) -> Result<Action> {
         Some(key) => key.clone(),
         None => build_api_key(&crd).await?,
     };
-    let (hostname, _) = build_hostname(&key);
+    let (hostname, _) = build_hostname(&key, &crd.spec.network);
 
     let status = UtxoRpcPortStatus {
         grpc_endpoint_url: hostname,
