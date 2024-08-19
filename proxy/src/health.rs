@@ -18,9 +18,7 @@ impl HealthBackgroundService {
         Self { state, config }
     }
 
-    async fn update_health(&self) {
-        let current_health = *self.state.upstream_health.read().await;
-
+    async fn get_health(&self) -> bool {
         // Create a Kubernetes client
         let client = Client::try_default()
             .await
@@ -35,7 +33,7 @@ impl HealthBackgroundService {
                     error = err.to_string(),
                     "Error getting endpoints for health."
                 );
-                return;
+                return false;
             }
         };
 
@@ -57,7 +55,7 @@ impl HealthBackgroundService {
             Ok(pods) => pods,
             Err(err) => {
                 warn!(error = err.to_string(), "Error getting pods for health.");
-                return;
+                return false;
             }
         };
 
@@ -75,7 +73,13 @@ impl HealthBackgroundService {
             })
             .collect();
 
-        let new_health = !running_pods.is_empty();
+        !running_pods.is_empty()
+    }
+
+    async fn update_health(&self) {
+        let current_health = *self.state.upstream_health.read().await;
+
+        let new_health = self.get_health().await;
 
         match (current_health, new_health) {
             (false, true) => info!("Upstream is now healthy, ready to proxy requests."),
@@ -83,7 +87,7 @@ impl HealthBackgroundService {
             _ => {}
         }
 
-        *self.state.upstream_health.write().await = !running_pods.is_empty();
+        *self.state.upstream_health.write().await = new_health;
     }
 }
 
