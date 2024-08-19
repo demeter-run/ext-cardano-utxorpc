@@ -4,7 +4,7 @@ variable "namespace" {
 
 variable "networks" {
   type    = list(string)
-  default = ["mainnet", "preprod", "preview", "vector-testnet"]
+  default = ["cardano-mainnet", "cardano-preprod", "cardano-preview", "vector-testnet"]
 }
 
 variable "network_addresses" {

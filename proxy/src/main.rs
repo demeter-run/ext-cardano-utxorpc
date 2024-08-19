@@ -89,7 +89,16 @@ impl Display for Consumer {
 }
 impl From<&UtxoRpcPort> for Consumer {
     fn from(value: &UtxoRpcPort) -> Self {
-        let network = value.spec.network.to_string();
+        let network = if value.spec.network == "mainnet" {
+            "cardano-mainnet".to_string()
+        } else if value.spec.network == "preprod" {
+            "cardano-preprod".to_string()
+        } else if value.spec.network == "preview" {
+            "cardano-preview".to_string()
+        } else {
+            value.spec.network.to_string()
+        };
+
         let tier = value
             .spec
             .throughput_tier

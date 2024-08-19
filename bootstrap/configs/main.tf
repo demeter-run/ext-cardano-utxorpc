@@ -1,8 +1,8 @@
 locals {
   default_address_by_network = {
-    "mainnet" : "node-mainnet-stable.ext-nodes-m1.svc.cluster.local:3000"
-    "preprod" : "node-preprod-stable.ext-nodes-m1.svc.cluster.local:3000"
-    "preview" : "node-preview-stable.ext-nodes-m1.svc.cluster.local:3000"
+    "cardano-mainnet" : "node-mainnet-stable.ext-nodes-m1.svc.cluster.local:3000"
+    "cardano-preprod" : "node-preprod-stable.ext-nodes-m1.svc.cluster.local:3000"
+    "cardano-preview" : "node-preview-stable.ext-nodes-m1.svc.cluster.local:3000"
     "vector-testnet" : "85.90.225.26:7532"
   }
 }

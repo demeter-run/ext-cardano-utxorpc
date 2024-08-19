@@ -4,7 +4,7 @@ variable "namespace" {
 
 variable "networks" {
   type    = list(string)
-  default = ["mainnet", "preprod", "preview", "vector-testnet"]
+  default = ["cardano-mainnet", "cardano-preprod", "cardano-preview", "cardano-vector-testnet"]
 }
 
 resource "kubernetes_service_v1" "well_known_service_grpc" {

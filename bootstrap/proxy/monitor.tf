@@ -7,13 +7,13 @@ resource "kubernetes_manifest" "proxy_monitor" {
         "app.kubernetes.io/component" = "o11y"
         "app.kubernetes.io/part-of"   = "demeter"
       }
-      name      = "proxy"
+      name      = local.name
       namespace = var.namespace
     }
     spec = {
       selector = {
         matchLabels = {
-          role = "proxy"
+          role = local.role
         }
       }
       podMetricsEndpoints = [
