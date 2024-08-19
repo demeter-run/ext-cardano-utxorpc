@@ -1,5 +1,5 @@
 locals {
-  name = "cloudflared-${var.salt}"
+  name = "cloudflared"
 }
 
 resource "kubernetes_deployment" "cloudflared" {
@@ -12,7 +12,6 @@ resource "kubernetes_deployment" "cloudflared" {
 
     labels = {
       "app.kubernetes.io/name" = "cloudflared"
-      "demeter-run/cell"       = var.salt
     }
   }
 
@@ -22,7 +21,6 @@ resource "kubernetes_deployment" "cloudflared" {
     selector {
       match_labels = {
         "app.kubernetes.io/name" = "cloudflared"
-        "demeter-run/cell"       = var.salt
       }
     }
 
@@ -30,7 +28,6 @@ resource "kubernetes_deployment" "cloudflared" {
       metadata {
         labels = {
           "app.kubernetes.io/name" = "cloudflared"
-          "demeter-run/cell"       = var.salt
         }
 
         annotations = {

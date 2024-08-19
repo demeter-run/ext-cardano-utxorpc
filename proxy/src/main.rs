@@ -1,6 +1,7 @@
 use auth::AuthBackgroundService;
 use config::Config;
 use dotenv::dotenv;
+use health::HealthBackgroundService;
 use operator::{kube::ResourceExt, UtxoRpcPort};
 use pingora::{
     server::{configuration::Opt, Server},
@@ -14,6 +15,7 @@ use tracing::Level;
 
 mod auth;
 mod config;
+mod health;
 mod proxy;
 
 fn main() {
@@ -44,18 +46,17 @@ fn main() {
 
     tls_settings.enable_h2();
     utxorpc_http_proxy.add_tls_with_settings(&config.proxy_addr, None, tls_settings);
-    // utxorpc_http_proxy
-    //     .add_tls(
-    //         &config.proxy_addr,
-    //         &config.ssl_crt_path,
-    //         &config.ssl_key_path,
-    //     )
-    //     .unwrap();
     server.add_service(utxorpc_http_proxy);
 
     let mut prometheus_service = pingora::services::listening::Service::prometheus_http_service();
     prometheus_service.add_tcp(&config.prometheus_addr);
     server.add_service(prometheus_service);
+
+    let health_background_service = background_service(
+        "K8S Auth Service",
+        HealthBackgroundService::new(state.clone(), config.clone()),
+    );
+    server.add_service(health_background_service);
 
     server.run_forever();
 }
@@ -64,6 +65,7 @@ fn main() {
 pub struct State {
     consumers: RwLock<HashMap<String, Consumer>>,
     metrics: Metrics,
+    upstream_health: RwLock<bool>,
 }
 impl State {
     pub async fn get_consumer(&self, key: &str) -> Option<Consumer> {

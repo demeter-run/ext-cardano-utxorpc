@@ -33,15 +33,15 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
         #   name  = "init"
         #   image = "ghcr.io/txpipe/dolos:${var.dolos_version}"
         #   # command = ["sleep", "infinity"]
-        #   # args = [
-        #   #   "-c",
-        #   #   "/etc/config/dolos.toml",
-        #   #   "bootstrap",
-        #   #   "--download-dir",
-        #   #   "/var/data/${var.network}/snapshot",
-        #   #   "--skip-if-not-empty",
-        #   #   # "--skip-download",
-        #   # ]
+        #   args = [
+        #     "-c",
+        #     "/etc/config/dolos.toml",
+        #     "bootstrap",
+        #     "--download-dir",
+        #     "/var/data/${var.network}/snapshot",
+        #     "--skip-if-not-empty",
+        #     # "--skip-download",
+        #   ]
         #   resources {
         #     limits   = var.resources.limits
         #     requests = var.resources.requests

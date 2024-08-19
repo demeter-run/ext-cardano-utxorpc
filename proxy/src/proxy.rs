@@ -4,7 +4,6 @@ use pingora::proxy::{ProxyHttp, Session};
 use pingora::Result;
 use pingora::{http::ResponseHeader, upstreams::peer::HttpPeer};
 use std::sync::Arc;
-use tokio::net::lookup_host;
 use tracing::info;
 
 use crate::config::Config;
@@ -33,10 +32,7 @@ impl UtxoRpcProxy {
         ctx.is_health_request = true;
         session.set_keepalive(None);
 
-        let is_healthy = match lookup_host(&self.config.instance()).await {
-            Ok(mut addresses) => addresses.next().is_some(),
-            Err(_) => false,
-        };
+        let is_healthy = *self.state.upstream_health.read().await;
         let (code, message) = if is_healthy {
             (200, "OK")
         } else {

@@ -6,10 +6,6 @@ variable "networks" {
   type = list(string)
 }
 
-variable "salt" {
-  type = string
-}
-
 variable "tunnel_id" {
   type = string
 }

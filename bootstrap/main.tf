@@ -33,6 +33,36 @@ module "services" {
   networks  = var.networks
 }
 
+module "proxy" {
+  depends_on = [kubernetes_namespace_v1.namespace]
+  source     = "./proxy"
+  for_each   = { for network in var.networks : "${network}" => network }
+
+  namespace   = var.namespace
+  network     = each.value
+  image_tag   = var.proxies_image_tag
+  replicas    = var.proxies_replicas
+  resources   = var.proxies_resources
+  tolerations = var.proxies_tolerations
+}
+
+module "cloudflared" {
+  depends_on = [kubernetes_namespace_v1.namespace]
+  source     = "./cloudflared"
+
+  namespace     = var.namespace
+  networks      = var.networks
+  tunnel_id     = var.cloudflared_tunnel_id
+  hostname      = "${var.extension_subdomain}.${var.dns_zone}"
+  tunnel_secret = var.cloudflared_tunnel_secret
+  account_tag   = var.cloudflared_account_tag
+  metrics_port  = var.cloudflared_metrics_port
+  image_tag     = var.cloudflared_image_tag
+  replicas      = var.cloudflared_replicas
+  resources     = var.cloudflared_resources
+  tolerations   = var.cloudflared_tolerations
+}
+
 module "cells" {
   depends_on = [module.configs, module.feature]
   for_each   = var.cells
@@ -67,37 +97,6 @@ module "cells" {
   storage_size  = each.value.pvc.storage_size
   storage_class = each.value.pvc.storage_class
   volume_name   = each.value.pvc.volume_name
-
-  // Proxy
-  proxy_image_tag = try(each.value.proxy.image_tag, var.proxy_image_tag)
-  proxy_replicas  = try(each.value.proxy.replicas, 1)
-  proxy_resources = try(each.value.proxy.resoures, {
-    limits : {
-      cpu : "50m",
-      memory : "250Mi"
-    }
-    requests : {
-      cpu : "50m",
-      memory : "250Mi"
-    }
-  })
-
-  // CLoudflared
-  cloudflared_tunnel_id     = var.cloudflared_tunnel_id
-  cloudflared_tunnel_secret = var.cloudflared_tunnel_secret
-  cloudflared_account_tag   = var.cloudflared_account_tag
-  cloudflared_image_tag     = try(each.value.cloudflared.image_tag, "latest")
-  cloudflared_replicas      = try(each.value.cloudflared.replicas, 1)
-  cloudflared_resources = try(each.value.cloudflared.resources, {
-    limits : {
-      cpu : "1",
-      memory : "500Mi"
-    }
-    requests : {
-      cpu : "50m",
-      memory : "500Mi"
-    }
-  })
 
   // Instances
   instances = each.value.instances

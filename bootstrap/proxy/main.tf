@@ -1,5 +1,5 @@
 locals {
-  name = "proxy-${var.salt}-${var.network}"
+  name = "proxy-${var.network}"
   role = "proxy-${var.network}"
 
   prometheus_port = 9187
@@ -13,10 +13,6 @@ variable "namespace" {
 }
 
 variable "network" {
-  type = string
-}
-
-variable "salt" {
   type = string
 }
 
@@ -39,14 +35,13 @@ variable "tolerations" {
     effect   = string
     key      = string
     operator = string
-    value    = string
+    value    = optional(string)
   }))
   default = [
     {
       effect   = "NoSchedule"
       key      = "demeter.run/compute-profile"
-      operator = "Equal"
-      value    = "general-purpose"
+      operator = "Exists"
     },
     {
       effect   = "NoSchedule"
@@ -57,8 +52,7 @@ variable "tolerations" {
     {
       effect   = "NoSchedule"
       key      = "demeter.run/availability-sla"
-      operator = "Equal"
-      value    = "best-effort"
+      operator = "Exists"
     }
   ]
 }

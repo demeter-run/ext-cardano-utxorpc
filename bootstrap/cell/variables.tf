@@ -26,11 +26,6 @@ variable "volume_name" {
   type = string
 }
 
-variable "certs_configmap" {
-  type    = string
-  default = "proxy-certs"
-}
-
 variable "tolerations" {
   type = list(object({
     effect   = string
@@ -58,92 +53,6 @@ variable "tolerations" {
       value    = "consistent"
     }
   ]
-}
-
-// Proxy
-variable "proxy_image_tag" {
-  type = string
-}
-
-variable "proxy_replicas" {
-  type    = number
-  default = 1
-}
-
-variable "proxy_resources" {
-  type = object({
-    limits = object({
-      cpu    = string
-      memory = string
-    })
-    requests = object({
-      cpu    = string
-      memory = string
-    })
-  })
-  default = {
-    limits : {
-      cpu : "50m",
-      memory : "250Mi"
-    }
-    requests : {
-      cpu : "50m",
-      memory : "250Mi"
-    }
-  }
-}
-
-// Cloudflared
-variable "cloudflared_tunnel_id" {
-  type = string
-}
-
-variable "cloudflared_tunnel_secret" {
-  type        = string
-  description = "TunnelSecret, written on credentials file."
-}
-
-variable "cloudflared_account_tag" {
-  type        = string
-  description = "AccountTag, written on credentials file."
-}
-
-variable "cloudflared_metrics_port" {
-  type    = number
-  default = 2000
-}
-
-variable "cloudflared_image_tag" {
-  type    = string
-  default = "latest"
-}
-
-variable "cloudflared_replicas" {
-  type    = number
-  default = 2
-}
-
-variable "cloudflared_resources" {
-  type = object({
-    limits = object({
-      cpu    = string
-      memory = string
-    })
-    requests = object({
-      cpu    = string
-      memory = string
-    })
-  })
-  default = {
-    limits : {
-      cpu : "1",
-      memory : "500Mi"
-    }
-    requests : {
-      cpu : "50m",
-      memory : "500Mi"
-    }
-  }
 }
 
 // Instances

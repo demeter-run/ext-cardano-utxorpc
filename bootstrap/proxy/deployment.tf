@@ -5,24 +5,21 @@ resource "kubernetes_deployment_v1" "utxorpc_proxy" {
     name      = local.name
     namespace = var.namespace
     labels = {
-      role               = local.role
-      "demeter-run/cell" = var.salt
+      role = local.role
     }
   }
   spec {
     replicas = var.replicas
     selector {
       match_labels = {
-        role               = local.role
-        "demeter-run/cell" = var.salt
+        role = local.role
       }
     }
     template {
       metadata {
         name = local.name
         labels = {
-          role               = local.role
-          "demeter-run/cell" = var.salt
+          role = local.role
         }
       }
       spec {

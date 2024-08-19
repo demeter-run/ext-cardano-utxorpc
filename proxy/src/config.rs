@@ -11,6 +11,7 @@ pub struct Config {
     pub utxorpc_dns: String,
     pub utxorpc_port: u16,
     pub health_endpoint: String,
+    pub health_pool_interval: std::time::Duration,
 }
 impl Config {
     pub fn new() -> Self {
@@ -27,14 +28,21 @@ impl Config {
                 .parse()
                 .expect("Unable to parse port."),
             health_endpoint: "/dmtr_health".to_string(),
+            health_pool_interval: std::time::Duration::from_secs(10),
         }
     }
 
     pub fn instance(&self) -> String {
         format!(
-            "utxorpc-{}-grpc.{}:{}",
-            self.network, self.utxorpc_dns, self.utxorpc_port
+            "{}.{}:{}",
+            self.service(),
+            self.utxorpc_dns,
+            self.utxorpc_port
         )
+    }
+
+    pub fn service(&self) -> String {
+        format!("utxorpc-{}-grpc", self.network)
     }
 }
 impl Default for Config {
