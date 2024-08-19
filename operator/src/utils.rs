@@ -7,9 +7,21 @@ use kube::{
     discovery::ApiResource,
     Api, Client, ResourceExt,
 };
+use lazy_static::lazy_static;
 use serde_json::json;
+use std::collections::HashMap;
 
 use crate::{get_config, Error, UtxoRpcPort};
+
+lazy_static! {
+    static ref LEGACY_NETWORKS: HashMap<&'static str, String> = {
+        let mut m = HashMap::new();
+        m.insert("mainnet", "cardano-mainnet".into());
+        m.insert("preprod", "cardano-preprod".into());
+        m.insert("preview", "cardano-preview".into());
+        m
+    };
+}
 
 pub async fn patch_resource_status(
     client: Client,
@@ -25,6 +37,11 @@ pub async fn patch_resource_status(
     api.patch_status(name, &patch_params, &Patch::Merge(status))
         .await?;
     Ok(())
+}
+
+pub fn handle_legacy_networks(network: &str) -> String {
+    let default = network.to_string();
+    LEGACY_NETWORKS.get(network).unwrap_or(&default).to_string()
 }
 
 pub fn build_hostname(key: &str, network: &str) -> (String, String) {

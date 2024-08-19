@@ -8,7 +8,10 @@ use serde::{Deserialize, Serialize};
 use std::{sync::Arc, time::Duration};
 use tracing::{error, info, instrument};
 
-use crate::{build_api_key, build_hostname, patch_resource_status, Error, Metrics, Result, State};
+use crate::{
+    build_api_key, build_hostname, handle_legacy_networks, patch_resource_status, Error, Metrics,
+    Result, State,
+};
 
 pub static UTXORPX_PORT_FINALIZER: &str = "utxorpcports.demeter.run";
 
@@ -61,16 +64,8 @@ async fn reconcile(crd: Arc<UtxoRpcPort>, ctx: Arc<Context>) -> Result<Action> {
         Some(key) => key.clone(),
         None => build_api_key(&crd).await?,
     };
-    let host_network = if &crd.spec.network == "mainnet" {
-        "cardano-mainnet"
-    } else if &crd.spec.network == "preprod" {
-        "cardano-preprod"
-    } else if &crd.spec.network == "preview" {
-        "cardano-preview"
-    } else {
-        &crd.spec.network
-    };
-    let (hostname, _) = build_hostname(&key, host_network);
+    let host_network = handle_legacy_networks(&crd.spec.network);
+    let (hostname, _) = build_hostname(&key, &host_network);
 
     let status = UtxoRpcPortStatus {
         grpc_endpoint_url: hostname,
