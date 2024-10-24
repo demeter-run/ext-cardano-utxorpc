@@ -94,8 +94,8 @@ resource "kubernetes_deployment_v1" "utxorpc_proxy" {
 
         volume {
           name = "certs"
-          config_map {
-            name = var.certs_configmap
+          secret {
+            secret_name = var.certs_secret
           }
         }
 

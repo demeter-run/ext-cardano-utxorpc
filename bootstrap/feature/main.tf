@@ -15,7 +15,7 @@ variable "extension_subdomain" {
   default = "utxorpc-m0"
 }
 
-variable "certs_configmap" {
+variable "certs_secret" {
   type    = string
   default = "proxy-certs"
 }

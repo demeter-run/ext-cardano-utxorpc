@@ -1,7 +1,7 @@
-resource "kubernetes_config_map" "proxy-certs" {
+resource "kubernetes_secret" "proxy-certs" {
   metadata {
     namespace = var.namespace
-    name      = var.certs_configmap
+    name      = var.certs_secret
   }
 
   data = {

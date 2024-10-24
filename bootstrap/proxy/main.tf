@@ -25,7 +25,7 @@ variable "image_tag" {
   type = string
 }
 
-variable "certs_configmap" {
+variable "certs_secret" {
   type    = string
   default = "proxy-certs"
 }
