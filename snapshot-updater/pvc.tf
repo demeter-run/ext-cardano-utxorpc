@@ -10,9 +10,9 @@ resource "kubernetes_persistent_volume_claim" "scratch" {
     access_modes = ["ReadWriteOnce"]
     resources {
       requests = {
-        storage = "450Gi"
+        storage = var.pvc_size
       }
     }
-    storage_class_name = "fast"
+    storage_class_name = "gp3"
   }
 }

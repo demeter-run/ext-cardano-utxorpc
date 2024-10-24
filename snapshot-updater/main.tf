@@ -14,13 +14,19 @@ locals {
   configmap_name = "snapshot-updater-config-${var.network}"
 }
 
-variable "namespace" {}
+variable "namespace" {
+  type = string
+}
 
 variable "network" {
   type = string
 }
 
 variable "pvc_name" {
+  type = string
+}
+
+variable "pvc_size" {
   type = string
 }
 
