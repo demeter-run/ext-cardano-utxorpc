@@ -1,0 +1,22 @@
+[upstream]
+peer_address = "${address}"
+network_magic = ${magic}
+
+[storage]
+path = "/var/data/${network}/db"
+
+[genesis]
+byron_path = "/etc/genesis/mainnet/byron.json"
+shelley_path = "/etc/genesis/mainnet/shelley.json"
+alonzo_path = "/etc/genesis/mainnet/alonzo.json"
+
+[sync]
+pull_batch_size = 100
+
+[submit]
+prune_height = 200
+
+[logging]
+max_level = "INFO"
+include_pallas = false
+include_grpc = false

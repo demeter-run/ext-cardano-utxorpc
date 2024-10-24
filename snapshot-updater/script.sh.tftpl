@@ -1,0 +1,32 @@
+# Params
+export NETWORK=${network}
+export MAGIC=${magic}
+export BUCKET=${bucket}
+export PREFIX=${prefix}
+
+# Get latest snapshot and update it
+echo "Bootstrapping dolos to latest snapshot..."
+dolos -c /etc/config/dolos.toml bootstrap snapshot --variant full
+echo "Syncing dolos to reach tip..."
+dolos -c /etc/config/dolos.toml sync --quit-on-tip
+echo "Syncing successful."
+
+# Get tip and substract 1000
+export CURRENT_SLOT=$(dolos -c /etc/config/dolos.toml data summary | grep -E ^slot | sed -E 's@slot: ([0-9]+).*@\1@')
+export SLOT_FOR_LEDGER=$((CURRENT_SLOT - 1000))
+
+# Make and upload full snapshot
+echo "Generating full snapshot..."
+mkdir -p "/var/data/scratch/$NETWORK"
+dolos -c /etc/config/dolos.toml data export --output "/var/data/scratch/$NETWORK/snapshot.tar.gz"
+apt-get update && apt-get install -y awscli
+aws s3 cp "/var/data/scratch/$NETWORK/snapshot.tar.gz" "s3://$BUCKET/$PREFIX/$MAGIC/full/latest.tar.gz"
+
+# Ledger
+dolos -c /etc/config/dolos.toml data copy-wal --since "$SLOT_FOR_LEDGER" --output "/var/data/scratch/$NETWORK/new_wal"
+cp "/var/data/scratch/$NETWORK/new_wal" "/var/data/$NETWORK/db/wal"
+dolos -c /etc/config/dolos.toml data export --output "/var/data/scratch/$NETWORK/ledger.tar.gz"
+aws s3 cp "/var/data/scratch/$NETWORK/ledger.tar.gz" "s3://$BUCKET/$PREFIX/$MAGIC/full/ledger.tar.gz"
+
+# Cleanup
+rm -rf "/var/data"
