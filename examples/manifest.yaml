@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: prj-mainnet-test
+  name: utxorpc
 ---
 # Access for the service account
 kind: ClusterRole
@@ -22,7 +22,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kube-rs
-  namespace: prj-mainnet-test
+  namespace: utxorpc
 automountServiceAccountToken: true
 ---
 # Binding the role to the account
@@ -30,10 +30,10 @@ kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: kube-rs-binding
-  namespace: prj-mainnet-test
+  namespace: utxorpc
 subjects:
   - kind: ServiceAccount
-    namespace: prj-mainnet-test
+    namespace: utxorpc
     name: kube-rs
 roleRef:
   kind: ClusterRole
@@ -45,7 +45,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
-  namespace: prj-mainnet-test
+  namespace: utxorpc
   labels:
     app: grafana
 spec:
@@ -70,7 +70,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: app
-  namespace: prj-mainnet-test
+  namespace: utxorpc
   labels:
     app: grafana
 spec:
@@ -98,13 +98,13 @@ data:
 kind: ConfigMap
 metadata:
   name: prometheus-vol
-  namespace: prj-mainnet-test
+  namespace: utxorpc
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
-  namespace: prj-mainnet-test
+  namespace: utxorpc
   labels:
     app: prometheus
 spec:
@@ -136,7 +136,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus
-  namespace: prj-mainnet-test
+  namespace: utxorpc
   labels:
     app: prometheus
 spec:
@@ -204,13 +204,13 @@ data:
 kind: ConfigMap
 metadata:
   name: proxy-config
-  namespace: prj-mainnet-test
+  namespace: utxorpc
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: proxy
-  namespace: prj-mainnet-test
+  namespace: utxorpc
   labels:
     app: proxy
 spec:
@@ -234,7 +234,7 @@ spec:
             - name: UTXORPC_PORT
               value: "80"
             - name: UTXORPC_DNS
-              value: "prj-mainnet-test.svc.cluster.local"
+              value: "utxorpc.svc.cluster.local"
             - name: SSL_CRT_PATH
               value: "/utxorpc-proxy/localhost.crt"
             - name: SSL_KEY_PATH
@@ -252,7 +252,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: proxy
-  namespace: prj-mainnet-test
+  namespace: utxorpc
   labels:
     app: proxy
 spec:
@@ -274,7 +274,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: operator
-  namespace: prj-mainnet-test
+  namespace: utxorpc
   labels:
     app: operator
 spec:
@@ -306,7 +306,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: operator
-  namespace: prj-mainnet-test
+  namespace: utxorpc
   labels:
     app: operator
 spec:
@@ -324,7 +324,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: utxorpc-mainnet-v1
-  namespace: prj-mainnet-test
+  namespace: utxorpc
   labels:
     app: utxorpc-mainnet-v1
 spec:
@@ -348,7 +348,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: utxorpc-mainnet-v1
-  namespace: prj-mainnet-test
+  namespace: utxorpc
   labels:
     app: utxorpc-mainnet-v1
 spec:
@@ -365,7 +365,7 @@ apiVersion: demeter.run/v1alpha1
 kind: UtxoRpcPort
 metadata:
   name: mainnet-user-2
-  namespace: prj-mainnet-test
+  namespace: utxorpc
 spec:
   operatorVersion: "1"
   network: mainnet
