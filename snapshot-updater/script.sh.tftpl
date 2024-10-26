@@ -1,8 +1,19 @@
+set -e
+
+cleanup() {
+  echo "Cleaning up data."
+  rm -rf "/var/data/$NETWORK"
+  rm -rf "/var/data/scratch"
+}
+
 # Params
 export NETWORK=${network}
 export MAGIC=${magic}
 export BUCKET=${bucket}
 export PREFIX=${prefix}
+
+# Initial cleanup in case there was a ungracefull shutdown
+cleanup
 
 # Get latest snapshot and update it
 echo "Bootstrapping dolos to latest snapshot..."
@@ -20,13 +31,16 @@ echo "Generating full snapshot..."
 mkdir -p "/var/data/scratch/$NETWORK"
 dolos -c /etc/config/dolos.toml data export --output "/var/data/scratch/$NETWORK/snapshot.tar.gz"
 apt-get update && apt-get install -y awscli
-aws s3 cp "/var/data/scratch/$NETWORK/snapshot.tar.gz" "s3://$BUCKET/$PREFIX/$MAGIC/full/latest.tar.gz"
+aws s3 cp "/var/data/scratch/$NETWORK/snapshot.tar.gz" "s3://$BUCKET/$PREFIX/$MAGIC/full/latest.tar.gz" --no-progress
+echo "Full snapshot uploaded."
 
 # Ledger
+echo "Generating ledger snapshot..."
 dolos -c /etc/config/dolos.toml data copy-wal --since "$SLOT_FOR_LEDGER" --output "/var/data/scratch/$NETWORK/new_wal"
 cp "/var/data/scratch/$NETWORK/new_wal" "/var/data/$NETWORK/db/wal"
 dolos -c /etc/config/dolos.toml data export --output "/var/data/scratch/$NETWORK/ledger.tar.gz"
-aws s3 cp "/var/data/scratch/$NETWORK/ledger.tar.gz" "s3://$BUCKET/$PREFIX/$MAGIC/full/ledger.tar.gz"
+aws s3 cp "/var/data/scratch/$NETWORK/ledger.tar.gz" "s3://$BUCKET/$PREFIX/$MAGIC/ledger/latest.tar.gz" --no-progress
+echo "Ledger snapshot uploaded."
 
 # Cleanup
-rm -rf "/var/data"
+cleanup

@@ -67,17 +67,16 @@ resource "kubernetes_cron_job_v1" "cronjob" {
                 name = local.configmap_name
               }
             }
-          }
-        }
+            dynamic "toleration" {
+              for_each = var.tolerations
 
-        dynamic "toleration" {
-          for_each = var.tolerations
-
-          content {
-            effect   = toleration.value.effect
-            key      = toleration.value.key
-            operator = toleration.value.operator
-            value    = toleration.value.value
+              content {
+                effect   = toleration.value.effect
+                key      = toleration.value.key
+                operator = toleration.value.operator
+                value    = toleration.value.value
+              }
+            }
           }
         }
       }
