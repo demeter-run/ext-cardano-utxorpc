@@ -12,6 +12,6 @@ fn main() {
 
     print!(
         "{}",
-        serde_json::to_string(&operator::UtxoRpcPort::crd()).unwrap()
+        serde_yaml::to_string(&operator::UtxoRpcPort::crd()).unwrap()
     )
 }
