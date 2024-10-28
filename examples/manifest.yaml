@@ -225,16 +225,22 @@ spec:
       serviceAccountName: kube-rs
       containers:
         - name: proxy
-          image: proxy:1.0
+          image: utxorpc-proxy:1.0
           ports:
             - containerPort: 80
           env:
+            - name: NETWORK 
+              value: "mainnet"
+            - name: PROXY_NAMESPACE 
+              value: "utxorpc"
+            - name: PROMETHEUS_ADDR 
+              value: "0.0.0.0:9187"
             - name: PROXY_ADDR
               value: "0.0.0.0:80"
             - name: UTXORPC_PORT
               value: "80"
             - name: UTXORPC_DNS
-              value: "utxorpc.svc.cluster.local"
+              value: "utxorpc-mainnet-v1.utxorpc.svc.cluster.local"
             - name: SSL_CRT_PATH
               value: "/utxorpc-proxy/localhost.crt"
             - name: SSL_KEY_PATH
@@ -289,7 +295,7 @@ spec:
       serviceAccountName: kube-rs
       containers:
         - name: operator
-          image: operator:1.0
+          image: utxorpc-operator:1.0
           ports:
             - containerPort: 9187
           env:
