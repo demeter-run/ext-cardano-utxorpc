@@ -45,11 +45,6 @@ resource "kubernetes_deployment_v1" "operator" {
           }
 
           env {
-            name  = "NAMESPACE"
-            value = var.namespace
-          }
-
-          env {
             name  = "EXTENSION_SUBDOMAIN"
             value = var.extension_subdomain
           }
