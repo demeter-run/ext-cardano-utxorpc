@@ -48,8 +48,8 @@ pub fn build_hostname(key: &str, network: &str) -> (String, String) {
     let config = get_config();
     let extension_subdomain = &config.extension_subdomain;
     let dns_zone = &config.dns_zone;
-    let hostname = format!("{network}-{extension_subdomain}.{dns_zone}");
-    let hostname_key = format!("{key}.{network}-{extension_subdomain}.{dns_zone}");
+    let hostname = format!("{network}.{extension_subdomain}.{dns_zone}");
+    let hostname_key = format!("{key}.{network}.{extension_subdomain}.{dns_zone}");
 
     (hostname, hostname_key)
 }
