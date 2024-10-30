@@ -23,3 +23,8 @@ variable "certs_secret" {
 variable "dns_zone" {
   default = "demeter.run"
 }
+
+variable "include_certs" {
+  type    = bool
+  default = true
+}
