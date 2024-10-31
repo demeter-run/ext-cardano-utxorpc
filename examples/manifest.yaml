@@ -403,12 +403,18 @@ spec:
       targetPort: 3000
       protocol: TCP
 ---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prj-myproject
+---
 # Utxo Rpc Port 2
 apiVersion: demeter.run/v1alpha1
 kind: UtxoRpcPort
 metadata:
   name: mainnet-user-2
-  namespace: utxorpc
+  namespace: prj-myproject
 spec:
   operatorVersion: "1"
   network: mainnet
