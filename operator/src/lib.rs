@@ -37,6 +37,12 @@ impl From<kube::Error> for Error {
     }
 }
 
+impl From<reqwest::Error> for Error {
+    fn from(value: reqwest::Error) -> Self {
+        Error::HttpError(value.to_string())
+    }
+}
+
 #[derive(Clone)]
 pub struct State {
     registry: Registry,
