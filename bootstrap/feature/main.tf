@@ -28,3 +28,13 @@ variable "include_certs" {
   type    = bool
   default = true
 }
+
+variable "metrics_delay" {
+  description = "the inverval for polling metrics data (in seconds)"
+  default     = "60"
+}
+
+variable "metrics_step" {
+  description = "the metrics prometheus step"
+  default     = "10s"
+}

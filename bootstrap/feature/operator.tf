@@ -54,6 +54,21 @@ resource "kubernetes_deployment_v1" "operator" {
             value = var.dns_zone
           }
 
+          env {
+            name  = "PROMETHEUS_URL"
+            value = "http://prometheus-operated.demeter-system.svc.cluster.local:9090/api/v1"
+          }
+
+          env {
+            name  = "METRICS_DELAY"
+            value = var.metrics_delay
+          }
+
+          env {
+            name  = "METRICS_STEP"
+            value = var.metrics_step
+          }
+
           resources {
             limits = {
               cpu    = "4"
