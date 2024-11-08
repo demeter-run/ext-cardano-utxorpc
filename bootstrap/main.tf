@@ -68,10 +68,8 @@ module "cells" {
   for_each   = var.cells
   source     = "./cell"
 
-  namespace           = var.namespace
-  salt                = each.key
-  extension_subdomain = var.extension_subdomain
-  dns_zone            = var.dns_zone
+  namespace = var.namespace
+  salt      = each.key
   tolerations = coalesce(each.value.tolerations, [
     {
       effect   = "NoSchedule"

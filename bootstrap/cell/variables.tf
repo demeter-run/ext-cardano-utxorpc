@@ -6,14 +6,6 @@ variable "salt" {
   type = string
 }
 
-variable "extension_subdomain" {
-  type = string
-}
-
-variable "dns_zone" {
-  default = "demeter.run"
-}
-
 variable "storage_size" {
   type = string
 }
@@ -31,7 +23,7 @@ variable "tolerations" {
     effect   = string
     key      = string
     operator = string
-    value    = string
+    value    = optional(string)
   }))
   default = [
     {

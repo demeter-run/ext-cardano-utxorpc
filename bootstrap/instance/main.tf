@@ -33,7 +33,7 @@ variable "tolerations" {
     effect   = string
     key      = string
     operator = string
-    value    = string
+    value    = optional(string)
   }))
   default = [
     {

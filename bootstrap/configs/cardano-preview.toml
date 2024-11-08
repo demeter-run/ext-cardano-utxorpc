@@ -10,6 +10,7 @@ path = "/var/data/preview/db"
 byron_path = "/etc/genesis/preview/byron.json"
 shelley_path = "/etc/genesis/preview/shelley.json"
 alonzo_path = "/etc/genesis/preview/alonzo.json"
+conway_path = "/etc/genesis/preview/conway.json"
 
 [sync]
 pull_batch_size = 100
