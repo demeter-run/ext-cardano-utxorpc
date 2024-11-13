@@ -179,7 +179,7 @@ variable "cells" {
     pvc = object({
       storage_class = string
       storage_size  = string
-      volume_name   = string
+      volume_name   = optional(string)
     })
     instances = map(object({
       dolos_version = string
