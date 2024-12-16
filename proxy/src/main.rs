@@ -40,9 +40,11 @@ fn main() {
         &server.configuration,
         UtxoRpcProxy::new(state.clone(), config.clone()),
     );
-    let mut tls_settings =
-        pingora::listeners::TlsSettings::intermediate(&config.ssl_crt_path, &config.ssl_key_path)
-            .unwrap();
+    let mut tls_settings = pingora::listeners::tls::TlsSettings::intermediate(
+        &config.ssl_crt_path,
+        &config.ssl_key_path,
+    )
+    .unwrap();
 
     tls_settings.enable_h2();
     utxorpc_http_proxy.add_tls_with_settings(&config.proxy_addr, None, tls_settings);

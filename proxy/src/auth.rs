@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use async_trait::async_trait;
 use futures_util::TryStreamExt;
@@ -39,20 +39,26 @@ impl BackgroundService for AuthBackgroundService {
         loop {
             let result = stream.try_next().await;
             match result {
-                // Stream restart, also run on startup.
-                Ok(Some(Event::Restarted(crds))) => {
+                Ok(Some(Event::Init)) => {
                     info!("auth: Watcher restarted, reseting consumers");
-                    let consumers: HashMap<String, Consumer> = crds
-                        .iter()
-                        .map(|crd| {
-                            let consumer = Consumer::from(crd);
-                            (consumer.key.clone(), consumer)
-                        })
-                        .collect();
-                    *self.state.consumers.write().await = consumers;
+                    self.state.consumers.write().await.clear();
                 }
-                // New port created or updated.
-                Ok(Some(Event::Applied(crd))) => match crd.status {
+
+                Ok(Some(Event::InitApply(crd))) => {
+                    info!("auth: Adding consumer: {}", crd.name_any());
+                    let consumer = Consumer::from(&crd);
+                    self.state
+                        .consumers
+                        .write()
+                        .await
+                        .insert(consumer.key.clone(), consumer);
+                }
+
+                Ok(Some(Event::InitDone)) => {
+                    info!("auth: Watcher completed restart.");
+                }
+
+                Ok(Some(Event::Apply(crd))) => match crd.status {
                     Some(_) => {
                         info!("auth: Updating consumer: {}", crd.name_any());
                         let consumer = Consumer::from(&crd);
@@ -68,8 +74,8 @@ impl BackgroundService for AuthBackgroundService {
                         info!("auth: New port created: {}", crd.name_any());
                     }
                 },
-                // Port deleted.
-                Ok(Some(Event::Deleted(crd))) => {
+
+                Ok(Some(Event::Delete(crd))) => {
                     info!(
                         "auth: Port deleted, removing from state: {}",
                         crd.name_any()
@@ -77,7 +83,7 @@ impl BackgroundService for AuthBackgroundService {
                     let consumer = Consumer::from(&crd);
                     self.state.consumers.write().await.remove(&consumer.key);
                 }
-                // Empty response from stream. Should never happen.
+
                 Ok(None) => {
                     error!("auth: Empty response from watcher.");
                     continue;
