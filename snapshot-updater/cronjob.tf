@@ -42,7 +42,7 @@ resource "kubernetes_cron_job_v1" "cronjob" {
 
               env {
                 name  = "DOLOS_STORAGE_VERSION"
-                value = "v1"
+                value = var.prefix
               }
 
               resources {
