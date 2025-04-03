@@ -1,9 +1,11 @@
 [upstream]
 peer_address = "${address}"
 network_magic = ${magic}
+is_testnet = ${is_testnet}
 
 [storage]
 path = "/var/data/${network}/db"
+max_wal_history = 129600
 
 [genesis]
 byron_path = "/etc/genesis/${network}/byron.json"
@@ -25,3 +27,7 @@ include_grpc = false
 [serve.grpc]
 listen_address = "[::]:50051"
 permissive_cors = true
+
+[mithril]
+aggregator = "${mithril_aggregator}"
+genesis_key = "${mithril_genesis_key}"

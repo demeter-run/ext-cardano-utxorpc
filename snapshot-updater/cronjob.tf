@@ -1,6 +1,6 @@
 resource "kubernetes_cron_job_v1" "cronjob" {
   metadata {
-    name      = "snapshot-updater-${var.network}-cronjob"
+    name      = "snapshot-updater-${var.network}-${var.prefix}-cronjob"
     namespace = var.namespace
   }
 
@@ -10,7 +10,8 @@ resource "kubernetes_cron_job_v1" "cronjob" {
     job_template {
       metadata {
         labels = {
-          "cardano.demeter.run/network" = var.network
+          "cardano.demeter.run/network"      = var.network
+          "cardano.demeter.run/dolos-prefix" = var.prefix
         }
       }
 
@@ -18,7 +19,8 @@ resource "kubernetes_cron_job_v1" "cronjob" {
         template {
           metadata {
             labels = {
-              "cardano.demeter.run/network" = var.network
+              "cardano.demeter.run/network"      = var.network
+              "cardano.demeter.run/dolos-prefix" = var.prefix
             }
           }
 
@@ -36,6 +38,11 @@ resource "kubernetes_cron_job_v1" "cronjob" {
               env {
                 name  = "AWS_SECRET_ACCESS_KEY"
                 value = var.aws_secret_access_key
+              }
+
+              env {
+                name  = "DOLOS_STORAGE_VERSION"
+                value = "v1"
               }
 
               resources {

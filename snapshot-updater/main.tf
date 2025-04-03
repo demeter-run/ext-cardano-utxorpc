@@ -1,17 +1,5 @@
 locals {
-  magic_by_network = {
-    "mainnet" : 764824073,
-    "preprod" : 1,
-    "preview" : 2
-  }
-  address_by_network = {
-    "mainnet" : "node-mainnet-stable.ext-nodes-m1.svc.cluster.local:3000"
-    "preprod" : "node-preprod-stable.ext-nodes-m1.svc.cluster.local:3000"
-    "preview" : "node-preview-stable.ext-nodes-m1.svc.cluster.local:3000"
-  }
-  magic          = local.magic_by_network[var.network]
-  address        = local.address_by_network[var.network]
-  configmap_name = "snapshot-updater-config-${var.network}"
+  configmap_name = "snapshot-updater-config-${var.network}-${var.prefix}"
 }
 
 variable "namespace" {
