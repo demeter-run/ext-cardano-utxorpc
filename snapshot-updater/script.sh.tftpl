@@ -16,12 +16,8 @@ export PREFIX=${prefix}
 cleanup
 
 # Get latest snapshot and update it
-echo "Bootstrapping dolos to latest mithril..."
+echo "Bootstrapping dolos from latest snapshot..."
 dolos -c /etc/config/dolos.toml bootstrap snapshot --variant full
-echo "Repairing..."
-rm -rf "/var/data/$NETWORK/db/ledger"
-dolos -c /etc/config/dolos.toml doctor rebuild-stores
-export DOLOS_STORAGE_VERSION=v1
 echo "Syncing dolos to reach tip..."
 dolos -c /etc/config/dolos.toml sync --quit-on-tip
 echo "Syncing successful."
