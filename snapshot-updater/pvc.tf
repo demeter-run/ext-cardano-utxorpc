@@ -13,7 +13,6 @@ resource "kubernetes_persistent_volume_claim" "scratch" {
         storage = var.pvc_size
       }
     }
-    storage_class_name = "nvme"
-    volume_name        = "local-pv-2962c87d"
+    storage_class_name = "gp3"
   }
 }
