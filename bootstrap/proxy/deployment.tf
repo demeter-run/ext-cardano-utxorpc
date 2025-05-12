@@ -72,8 +72,8 @@ resource "kubernetes_deployment_v1" "utxorpc_proxy" {
           }
 
           env {
-            name = "UPSTREAM"
-            value = "http://utxorpc-${var.network}-grpc.${var.namespace}.svc.cluster.local:50051"
+            name  = "UTXORPC_DNS"
+            value = "${var.namespace}.svc.cluster.local"
           }
 
           env {

@@ -28,6 +28,10 @@ variable "dolos_version" {
   type = string
 }
 
+variable "proxy_image_tag" {
+  type = string
+}
+
 variable "tolerations" {
   type = list(object({
     effect   = string
@@ -57,6 +61,11 @@ variable "tolerations" {
   ]
 }
 
+variable "certs_secret_name" {
+  type    = string
+  default = null
+}
+
 variable "resources" {
   type = object({
     limits = object({
@@ -80,3 +89,25 @@ variable "resources" {
   }
 }
 
+variable "proxy_resources" {
+  type = object({
+    limits = object({
+      cpu    = optional(string)
+      memory = string
+    })
+    requests = object({
+      cpu    = string
+      memory = string
+    })
+  })
+  default = {
+    requests = {
+      cpu    = "50m"
+      memory = "512Mi"
+    }
+    limits = {
+      cpu    = "1000m"
+      memory = "512Mi"
+    }
+  }
+}
