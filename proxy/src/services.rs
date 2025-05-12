@@ -27,18 +27,46 @@ pub async fn get_consumer<T>(
         .map(|v| v.to_str().unwrap())
     {
         Some(header) => header.to_string(),
-        None => return Err(Status::unauthenticated("API key not found.")),
+        None => {
+            return {
+                state.metrics.inc_http_total_request(
+                    &Default::default(),
+                    &config.proxy_namespace,
+                    &config.upstream,
+                    &401,
+                );
+                Err(Status::unauthenticated("API key not found."))
+            }
+        }
     };
 
     let consumer = match state.get_consumer(&key).await {
         Some(consumer) => consumer,
-        None => return Err(Status::unauthenticated("Unauthorized.")),
+        None => {
+            return {
+                state.metrics.inc_http_total_request(
+                    &Default::default(),
+                    &config.proxy_namespace,
+                    &config.upstream,
+                    &403,
+                );
+                Err(Status::unauthenticated("Unauthorized."))
+            }
+        }
     };
 
     if consumer.network != config.network {
-        return Err(Status::unauthenticated(
-            "This key corresponds to a different network",
-        ));
+        return {
+            state.metrics.inc_http_total_request(
+                &Default::default(),
+                &config.proxy_namespace,
+                &config.upstream,
+                &404,
+            );
+            Err(Status::unauthenticated(
+                "This key corresponds to a different network",
+            ))
+        };
     }
     Ok(consumer)
 }
@@ -81,13 +109,17 @@ impl u5c::spec::sync::sync_service_server::SyncService for SyncServiceImpl {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving SyncService/FetchBlock request");
 
+        let response = self.client().fetch_block(request).await;
         self.state.metrics.inc_http_total_request(
             &consumer,
             &self.config.proxy_namespace,
             &self.config.upstream,
-            &200,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
         );
-        self.client().fetch_block(request).await
+        response
     }
 
     async fn dump_history(
@@ -96,7 +128,17 @@ impl u5c::spec::sync::sync_service_server::SyncService for SyncServiceImpl {
     ) -> Result<Response<u5c::spec::sync::DumpHistoryResponse>, Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving SyncService/DumpHistory request");
-        self.client().dump_history(request).await
+        let response = self.client().dump_history(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
     }
 
     async fn follow_tip(
@@ -105,8 +147,18 @@ impl u5c::spec::sync::sync_service_server::SyncService for SyncServiceImpl {
     ) -> Result<Response<Self::FollowTipStream>, tonic::Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving SyncService/FollowTip request");
-        let stream = self.client().follow_tip(request).await?;
-        Ok(Response::new(Box::pin(stream.into_inner())))
+        match self.client().follow_tip(request).await {
+            Ok(stream) => Ok(Response::new(Box::pin(stream.into_inner()))),
+            Err(status) => {
+                self.state.metrics.inc_http_total_request(
+                    &consumer,
+                    &self.config.proxy_namespace,
+                    &self.config.upstream,
+                    &500,
+                );
+                Err(status)
+            }
+        }
     }
 
     async fn read_tip(
@@ -115,7 +167,17 @@ impl u5c::spec::sync::sync_service_server::SyncService for SyncServiceImpl {
     ) -> std::result::Result<tonic::Response<u5c::spec::sync::ReadTipResponse>, tonic::Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving SyncService/ReadTip request");
-        self.client().read_tip(request).await
+        let response = self.client().read_tip(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
     }
 }
 
@@ -152,7 +214,17 @@ impl u5c::spec::query::query_service_server::QueryService for QueryServiceImpl {
     ) -> Result<Response<u5c::spec::query::ReadParamsResponse>, Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving QueryService/ReadParams request");
-        self.client().read_params(request).await
+        let response = self.client().read_params(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
     }
 
     async fn read_data(
@@ -161,7 +233,17 @@ impl u5c::spec::query::query_service_server::QueryService for QueryServiceImpl {
     ) -> Result<Response<u5c::spec::query::ReadDataResponse>, Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving QueryService/ReadData request");
-        self.client().read_data(request).await
+        let response = self.client().read_data(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
     }
 
     async fn read_utxos(
@@ -170,7 +252,17 @@ impl u5c::spec::query::query_service_server::QueryService for QueryServiceImpl {
     ) -> Result<Response<u5c::spec::query::ReadUtxosResponse>, Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving QueryService/ReadUtxos request");
-        self.client().read_utxos(request).await
+        let response = self.client().read_utxos(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
     }
 
     async fn search_utxos(
@@ -179,7 +271,17 @@ impl u5c::spec::query::query_service_server::QueryService for QueryServiceImpl {
     ) -> Result<Response<u5c::spec::query::SearchUtxosResponse>, Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving QueryService/SearchUtxos request");
-        self.client().search_utxos(request).await
+        let response = self.client().search_utxos(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
     }
 }
 
@@ -232,7 +334,17 @@ impl u5c::spec::submit::submit_service_server::SubmitService for SubmitServiceIm
     ) -> Result<Response<u5c::spec::submit::SubmitTxResponse>, Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving SubmitService/SubmitTx request");
-        self.client().submit_tx(request).await
+        let response = self.client().submit_tx(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
     }
 
     async fn wait_for_tx(
@@ -241,8 +353,18 @@ impl u5c::spec::submit::submit_service_server::SubmitService for SubmitServiceIm
     ) -> Result<Response<Self::WaitForTxStream>, Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving SubmitService/WaitForTx request");
-        let stream = self.client().wait_for_tx(request).await?;
-        Ok(Response::new(Box::pin(stream.into_inner())))
+        match self.client().wait_for_tx(request).await {
+            Ok(stream) => Ok(Response::new(Box::pin(stream.into_inner()))),
+            Err(status) => {
+                self.state.metrics.inc_http_total_request(
+                    &consumer,
+                    &self.config.proxy_namespace,
+                    &self.config.upstream,
+                    &500,
+                );
+                Err(status)
+            }
+        }
     }
 
     async fn read_mempool(
@@ -251,7 +373,17 @@ impl u5c::spec::submit::submit_service_server::SubmitService for SubmitServiceIm
     ) -> Result<tonic::Response<u5c::spec::submit::ReadMempoolResponse>, tonic::Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving SubmitService/ReadMempool request");
-        self.client().read_mempool(request).await
+        let response = self.client().read_mempool(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
     }
 
     async fn watch_mempool(
@@ -260,8 +392,18 @@ impl u5c::spec::submit::submit_service_server::SubmitService for SubmitServiceIm
     ) -> Result<tonic::Response<Self::WatchMempoolStream>, tonic::Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving SubmitService/WatchMempool request");
-        let stream = self.client().watch_mempool(request).await?;
-        Ok(Response::new(Box::pin(stream.into_inner())))
+        match self.client().watch_mempool(request).await {
+            Ok(stream) => Ok(Response::new(Box::pin(stream.into_inner()))),
+            Err(status) => {
+                self.state.metrics.inc_http_total_request(
+                    &consumer,
+                    &self.config.proxy_namespace,
+                    &self.config.upstream,
+                    &500,
+                );
+                Err(status)
+            }
+        }
     }
 
     async fn eval_tx(
@@ -270,7 +412,17 @@ impl u5c::spec::submit::submit_service_server::SubmitService for SubmitServiceIm
     ) -> Result<tonic::Response<u5c::spec::submit::EvalTxResponse>, tonic::Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving SubmitService/EvalTx request");
-        self.client().eval_tx(request).await
+        let response = self.client().eval_tx(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
     }
 }
 
@@ -315,7 +467,17 @@ impl u5c::spec::watch::watch_service_server::WatchService for WatchServiceImpl {
     ) -> Result<Response<Self::WatchTxStream>, Status> {
         let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
         info!(consumer =? consumer, "serving WatchService/WatchTx request");
-        let stream = self.client().watch_tx(request).await?;
-        Ok(Response::new(Box::pin(stream.into_inner())))
+        match self.client().watch_tx(request).await {
+            Ok(stream) => Ok(Response::new(Box::pin(stream.into_inner()))),
+            Err(status) => {
+                self.state.metrics.inc_http_total_request(
+                    &consumer,
+                    &self.config.proxy_namespace,
+                    &self.config.upstream,
+                    &500,
+                );
+                Err(status)
+            }
+        }
     }
 }
