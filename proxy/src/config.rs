@@ -8,41 +8,21 @@ pub struct Config {
     pub prometheus_addr: String,
     pub ssl_crt_path: String,
     pub ssl_key_path: String,
-    pub utxorpc_dns: String,
-    pub utxorpc_port: u16,
-    pub health_endpoint: String,
-    pub health_pool_interval: std::time::Duration,
+    pub upstream: String,
 }
 impl Config {
     pub fn new() -> Self {
+        let network = env::var("NETWORK").expect("NETWORK must be set");
+        let upstream = env::var("UPSTREAM").expect("UPSTREAM must be set");
         Self {
-            network: env::var("NETWORK").expect("NETWORK must be set"),
+            upstream,
+            network,
             proxy_addr: env::var("PROXY_ADDR").expect("PROXY_ADDR must be set"),
             proxy_namespace: env::var("PROXY_NAMESPACE").expect("PROXY_NAMESPACE must be set"),
             prometheus_addr: env::var("PROMETHEUS_ADDR").expect("PROMETHEUS_ADDR must be set"),
             ssl_crt_path: env::var("SSL_CRT_PATH").expect("SSL_CRT_PATH must be set"),
             ssl_key_path: env::var("SSL_KEY_PATH").expect("SSL_KEY_PATH must be set"),
-            utxorpc_dns: env::var("UTXORPC_DNS").expect("UTXORPC_DNS must be set"),
-            utxorpc_port: env::var("UTXORPC_PORT")
-                .unwrap_or("50051".to_string())
-                .parse()
-                .expect("Unable to parse port."),
-            health_endpoint: "/dmtr_health".to_string(),
-            health_pool_interval: std::time::Duration::from_secs(10),
         }
-    }
-
-    pub fn instance(&self) -> String {
-        format!(
-            "{}.{}:{}",
-            self.service(),
-            self.utxorpc_dns,
-            self.utxorpc_port
-        )
-    }
-
-    pub fn service(&self) -> String {
-        format!("utxorpc-{}-grpc", self.network)
     }
 }
 impl Default for Config {

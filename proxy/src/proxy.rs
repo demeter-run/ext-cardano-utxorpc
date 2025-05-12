@@ -1,127 +1,65 @@
-use async_trait::async_trait;
-use bytes::Bytes;
-use pingora::proxy::{ProxyHttp, Session};
-use pingora::Result;
-use pingora::{http::ResponseHeader, upstreams::peer::HttpPeer};
+use miette::{bail, IntoDiagnostic};
 use std::sync::Arc;
-use tracing::info;
+use tonic::transport::{Certificate, Identity, Server, ServerTlsConfig};
+use tonic_prometheus_layer::MetricsLayer;
+use tower_http::cors::CorsLayer;
+use tower_http::trace::{DefaultOnEos, TraceLayer};
+use tracing::{info, Level};
+use utxorpc as u5c;
 
 use crate::config::Config;
-use crate::{Consumer, State};
+use crate::services::{QueryServiceImpl, SubmitServiceImpl, SyncServiceImpl, WatchServiceImpl};
+use crate::State;
 
-static DMTR_API_KEY: &str = "dmtr-api-key";
+pub async fn serve(state: Arc<State>, config: &Config) -> miette::Result<()> {
+    let addr = config.proxy_addr.parse().unwrap();
 
-pub struct UtxoRpcProxy {
-    state: Arc<State>,
-    config: Arc<Config>,
-}
-impl UtxoRpcProxy {
-    pub fn new(state: Arc<State>, config: Arc<Config>) -> Self {
-        Self { state, config }
-    }
+    let inner = SyncServiceImpl::try_new(state.clone(), config.clone())?;
+    let sync_service = u5c::spec::sync::sync_service_server::SyncServiceServer::new(inner);
 
-    fn extract_key(&self, session: &Session) -> String {
-        session
-            .get_header(DMTR_API_KEY)
-            .map(|v| v.to_str().unwrap())
-            .unwrap_or_default()
-            .to_string()
-    }
+    let inner = QueryServiceImpl::try_new(state.clone(), config.clone())?;
+    let query_service = u5c::spec::query::query_service_server::QueryServiceServer::new(inner);
 
-    async fn respond_health(&self, session: &mut Session, ctx: &mut Context) {
-        ctx.is_health_request = true;
-        session.set_keepalive(None);
+    let inner = WatchServiceImpl::try_new(state.clone(), config.clone())?;
+    let watch_service = u5c::spec::watch::watch_service_server::WatchServiceServer::new(inner);
 
-        let is_healthy = *self.state.upstream_health.read().await;
-        let (code, message) = if is_healthy {
-            (200, "OK")
-        } else {
-            (500, "UNHEALTHY")
-        };
+    let inner = SubmitServiceImpl::try_new(state.clone(), config.clone())?;
+    let submit_service = u5c::spec::submit::submit_service_server::SubmitServiceServer::new(inner);
 
-        let header = Box::new(ResponseHeader::build(code, None).unwrap());
-        session.write_response_header(header, true).await.unwrap();
-        session
-            .write_response_body(Some(Bytes::from(message)), true)
-            .await
-            .unwrap();
-    }
-}
+    let reflection = tonic_reflection::server::Builder::configure()
+        .register_encoded_file_descriptor_set(u5c::spec::cardano::FILE_DESCRIPTOR_SET)
+        .register_encoded_file_descriptor_set(u5c::spec::sync::FILE_DESCRIPTOR_SET)
+        .register_encoded_file_descriptor_set(u5c::spec::query::FILE_DESCRIPTOR_SET)
+        .register_encoded_file_descriptor_set(u5c::spec::submit::FILE_DESCRIPTOR_SET)
+        .register_encoded_file_descriptor_set(u5c::spec::watch::FILE_DESCRIPTOR_SET)
+        .register_encoded_file_descriptor_set(protoc_wkt::google::protobuf::FILE_DESCRIPTOR_SET)
+        .build_v1()
+        .unwrap();
 
-#[derive(Debug, Default)]
-pub struct Context {
-    instance: String,
-    consumer: Consumer,
-    is_health_request: bool,
-}
+    let server = Server::builder()
+        .accept_http1(true)
+        .layer(TraceLayer::new_for_grpc().on_eos(DefaultOnEos::new().level(Level::INFO)))
+        .layer(MetricsLayer::new())
+        .layer(CorsLayer::permissive());
 
-#[async_trait]
-impl ProxyHttp for UtxoRpcProxy {
-    type CTX = Context;
-    fn new_ctx(&self) -> Self::CTX {
-        Context::default()
-    }
+    let key = std::fs::read_to_string(&config.ssl_key_path).expect("Failed to read SSL key");
+    let crt = std::fs::read_to_string(&config.ssl_crt_path).expect("Failed to read SSL crt");
+    let pem = Certificate::from_pem(crt);
+    let identity = Identity::from_pem(pem, key);
+    let tls = ServerTlsConfig::new().identity(identity);
 
-    async fn request_filter(&self, session: &mut Session, ctx: &mut Self::CTX) -> Result<bool>
-    where
-        Self::CTX: Send + Sync,
-    {
-        let path = session.req_header().uri.path();
-        if path == self.config.health_endpoint {
-            self.respond_health(session, ctx).await;
-            return Ok(true);
-        }
+    let Ok(mut server) = server.tls_config(tls) else {
+        bail!("Failed set up HTTPS on proxy.")
+    };
 
-        let key = self.extract_key(session);
-
-        ctx.consumer = match self.state.get_consumer(&key).await {
-            Some(consumer) => consumer,
-            None => {
-                return session.respond_error(401).await.map(|_| true);
-            }
-        };
-
-        if ctx.consumer.network != self.config.network {
-            return session.respond_error(404).await.map(|_| true);
-        }
-
-        ctx.instance = self.config.instance();
-
-        Ok(false)
-    }
-
-    async fn upstream_peer(
-        &self,
-        _session: &mut Session,
-        ctx: &mut Self::CTX,
-    ) -> Result<Box<HttpPeer>> {
-        let mut peer = Box::new(HttpPeer::new(&ctx.instance, false, String::default()));
-        peer.options.alpn = pingora::upstreams::peer::ALPN::H2;
-        Ok(peer)
-    }
-
-    async fn logging(
-        &self,
-        session: &mut Session,
-        _e: Option<&pingora::Error>,
-        ctx: &mut Self::CTX,
-    ) {
-        if !ctx.is_health_request {
-            let response_code = session
-                .response_written()
-                .map_or(0, |resp| resp.status.as_u16());
-
-            info!(
-                "{} response code: {response_code}",
-                self.request_summary(session, ctx)
-            );
-
-            self.state.metrics.inc_http_total_request(
-                &ctx.consumer,
-                &self.config.proxy_namespace,
-                &ctx.instance,
-                &response_code,
-            );
-        }
-    }
+    info!("Serving proxy on {}", config.proxy_addr);
+    server
+        .add_service(tonic_web::enable(sync_service))
+        .add_service(tonic_web::enable(query_service))
+        .add_service(tonic_web::enable(submit_service))
+        .add_service(tonic_web::enable(watch_service))
+        .add_service(reflection)
+        .serve(addr)
+        .await
+        .into_diagnostic()
 }
