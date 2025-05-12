@@ -1,3 +1,11 @@
+locals {
+  prometheus_port  = 9187
+  prometheus_addr  = "0.0.0.0:${local.prometheus_port}"
+  proxy_port       = 8080
+  proxy_addr       = "[::1]:${local.proxy_port}"
+  cert_secret_name = "utxorpc-${var.network}-proxy-wildcard-tls"
+}
+
 resource "kubernetes_stateful_set_v1" "utxorpc" {
   wait_for_rollout = false
 
@@ -52,6 +60,7 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
             mount_path = "/var/data"
           }
         }
+
         container {
           name  = local.instance
           image = "ghcr.io/txpipe/dolos:${var.dolos_version}"
@@ -85,6 +94,75 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
           volume_mount {
             name       = "config"
             mount_path = "/etc/config"
+          }
+        }
+
+        container {
+          name  = "proxy"
+          image = "ghcr.io/demeter-run/ext-cardano-utxorpc-proxy:${var.proxy_image_tag}"
+
+          resources {
+            limits   = var.proxy_resources.limits
+            requests = var.proxy_resources.requests
+          }
+
+          env {
+            name  = "NETWORK"
+            value = var.network
+          }
+
+          env {
+            name  = "PROXY_NAMESPACE"
+            value = var.namespace
+          }
+
+          env {
+            name  = "PROXY_ADDR"
+            value = local.proxy_addr
+          }
+
+          env {
+            name  = "PROMETHEUS_ADDR"
+            value = local.prometheus_addr
+          }
+
+          env {
+            name  = "UPSTREAM"
+            value = "http://localhost:50051"
+          }
+
+          env {
+            name  = "SSL_CRT_PATH"
+            value = "/certs/tls.crt"
+          }
+
+          env {
+            name  = "SSL_KEY_PATH"
+            value = "/certs/tls.key"
+          }
+
+          port {
+            name           = "grpc"
+            container_port = local.proxy_port
+            protocol       = "TCP"
+          }
+
+          port {
+            name           = "metrics"
+            container_port = local.prometheus_port
+            protocol       = "TCP"
+          }
+
+          volume_mount {
+            mount_path = "/certs"
+            name       = "certs"
+          }
+        }
+
+        volume {
+          name = "certs"
+          secret {
+            secret_name = var.certs_secret_name == null ? local.cert_secret_name : var.certs_secret_name
           }
         }
 
