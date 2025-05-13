@@ -8,10 +8,10 @@ module "feature" {
   depends_on = [kubernetes_namespace_v1.namespace]
   source     = "./feature"
 
-  namespace                 = var.namespace
-  operator_image_tag        = var.operator_image_tag
-  extension_url_per_network = var.extension_url_per_network
-  api_key_salt              = var.api_key_salt
+  namespace                  = var.namespace
+  operator_image_tag         = var.operator_image_tag
+  extension_urls_per_network = var.extension_urls_per_network
+  api_key_salt               = var.api_key_salt
 }
 
 module "configs" {
@@ -30,20 +30,6 @@ module "services" {
 
   namespace = var.namespace
   networks  = var.networks
-}
-
-module "proxies" {
-  depends_on = [kubernetes_namespace_v1.namespace]
-  source     = "./proxy"
-  for_each   = { for network in var.networks : "${network}" => network }
-
-  namespace     = var.namespace
-  network       = each.value
-  image_tag     = var.proxies_image_tag
-  replicas      = var.proxies_replicas
-  resources     = var.proxies_resources
-  tolerations   = var.proxies_tolerations
-  extension_url = var.extension_url_per_network[each.key]
 }
 
 module "cells" {

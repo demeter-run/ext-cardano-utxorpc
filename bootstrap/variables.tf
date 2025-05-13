@@ -21,8 +21,8 @@ variable "api_key_salt" {
   type = string
 }
 
-variable "extension_url_per_network" {
-  type = map(string)
+variable "extension_urls_per_network" {
+  type = map(list(string))
 }
 
 variable "prometheus_url" {
@@ -104,9 +104,20 @@ variable "cells" {
       volume_name   = optional(string)
     })
     instances = map(object({
-      dolos_version = string
-      replicas      = optional(number)
+      dolos_version   = string
+      replicas        = optional(number)
+      proxy_image_tag = string
       resources = optional(object({
+        limits = object({
+          cpu    = string
+          memory = string
+        })
+        requests = object({
+          cpu    = string
+          memory = string
+        })
+      }))
+      proxy_resources = optional(object({
         limits = object({
           cpu    = string
           memory = string

@@ -7,47 +7,33 @@ variable "networks" {
   default = ["cardano-mainnet", "cardano-preprod", "cardano-preview", "cardano-vector-testnet"]
 }
 
-resource "kubernetes_service_v1" "well_known_service_grpc" {
+resource "kubernetes_service_v1" "proxy_service" {
   for_each = { for network in var.networks : "${network}" => network }
 
   metadata {
     name      = "utxorpc-${each.value}-grpc"
     namespace = var.namespace
+
+    annotations = {
+      "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type" : "instance"
+      "service.beta.kubernetes.io/aws-load-balancer-scheme" : "internet-facing"
+      "service.beta.kubernetes.io/aws-load-balancer-type" : "external"
+    }
   }
 
   spec {
-    port {
-      name     = "grpc"
-      protocol = "TCP"
-      port     = 50051
-    }
-
+    load_balancer_class = "service.k8s.aws/nlb"
     selector = {
       "cardano.demeter.run/network" = each.value
     }
 
-    type = "ClusterIP"
-  }
-}
-
-resource "kubernetes_service_v1" "well_known_service_grpc_web" {
-  for_each = { for network in var.networks : "${network}" => network }
-  metadata {
-    name      = "utxorpc-${each.value}-grpc-web"
-    namespace = var.namespace
-  }
-
-  spec {
     port {
-      name     = "grpc-web"
-      protocol = "TCP"
-      port     = 50051
+      name        = "proxy"
+      port        = 443
+      target_port = 8080
+      protocol    = "TCP"
     }
 
-    selector = {
-      "cardano.demeter.run/network" = each.value
-    }
-
-    type = "ClusterIP"
+    type = "LoadBalancer"
   }
 }

@@ -142,7 +142,7 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
           }
 
           port {
-            name           = "grpc"
+            name           = "proxy"
             container_port = local.proxy_port
             protocol       = "TCP"
           }

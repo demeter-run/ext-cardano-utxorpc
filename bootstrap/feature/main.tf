@@ -10,8 +10,8 @@ variable "api_key_salt" {
   type = string
 }
 
-variable "extension_url_per_network" {
-  type = map(string)
+variable "extension_urls_per_network" {
+  type = map(list(string))
 }
 
 variable "metrics_delay" {

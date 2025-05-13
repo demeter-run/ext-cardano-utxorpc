@@ -4,7 +4,9 @@ network_magic = 1
 is_testnet = true
 
 [storage]
+version = "v1"
 path = "/var/data/preprod/db"
+max_wal_history = 129600
 
 [genesis]
 byron_path = "/etc/genesis/preprod/byron.json"
@@ -27,5 +29,8 @@ genesis_key = "5b3132372c37332c3132342c3136312c362c3133372c3133312c3231332c32303
 
 [logging]
 max_level = "INFO"
+include_tokio = false
 include_pallas = false
-include_grpc = false
+include_grpc = true 
+include_trp = false
+include_minibf = false

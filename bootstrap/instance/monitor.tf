@@ -7,18 +7,19 @@ resource "kubernetes_manifest" "proxy_monitor" {
         "app.kubernetes.io/component" = "o11y"
         "app.kubernetes.io/part-of"   = "demeter"
       }
-      name      = local.name
+      name      = "proxy-${local.instance}"
       namespace = var.namespace
     }
     spec = {
       selector = {
         matchLabels = {
-          role = local.role
+          "demeter.run/instance"        = local.instance
+          "cardano.demeter.run/network" = var.network
         }
       }
       podMetricsEndpoints = [
         {
-          port = "metrics",
+          port = "proxy",
           path = "/metrics"
         }
       ]

@@ -46,7 +46,7 @@ resource "kubernetes_deployment_v1" "operator" {
 
           env {
             name  = "EXTENSION_URL_PER_NETWORK"
-            value = join(",", [for k, v in var.extension_url_per_network : "${k}=${v}"])
+            value = join(",", [for k, v in var.extension_urls_per_network : "${k}=${v[0]}"])
           }
 
           env {
