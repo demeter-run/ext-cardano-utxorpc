@@ -2,7 +2,7 @@ locals {
   prometheus_port  = 9187
   prometheus_addr  = "0.0.0.0:${local.prometheus_port}"
   proxy_port       = 8080
-  proxy_addr       = "[::1]:${local.proxy_port}"
+  proxy_addr       = "[::]:${local.proxy_port}"
   cert_secret_name = "utxorpc-${var.network}-proxy-wildcard-tls"
 }
 
