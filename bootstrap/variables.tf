@@ -35,61 +35,6 @@ variable "proxies_image_tag" {
   type = string
 }
 
-variable "proxies_replicas" {
-  type    = number
-  default = 1
-}
-
-variable "proxies_resources" {
-  type = object({
-    limits = object({
-      cpu    = string
-      memory = string
-    })
-    requests = object({
-      cpu    = string
-      memory = string
-    })
-  })
-  default = {
-    limits : {
-      cpu : "2",
-      memory : "250Mi"
-    }
-    requests : {
-      cpu : "50m",
-      memory : "250Mi"
-    }
-  }
-}
-
-variable "proxies_tolerations" {
-  type = list(object({
-    effect   = string
-    key      = string
-    operator = string
-    value    = optional(string)
-  }))
-  default = [
-    {
-      effect   = "NoSchedule"
-      key      = "demeter.run/compute-profile"
-      operator = "Exists"
-    },
-    {
-      effect   = "NoSchedule"
-      key      = "demeter.run/compute-arch"
-      operator = "Equal"
-      value    = "arm64"
-    },
-    {
-      effect   = "NoSchedule"
-      key      = "demeter.run/availability-sla"
-      operator = "Exists"
-    }
-  ]
-}
-
 variable "cells" {
   type = map(object({
     tolerations = optional(list(object({
