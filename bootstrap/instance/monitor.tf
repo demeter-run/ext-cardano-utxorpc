@@ -19,7 +19,7 @@ resource "kubernetes_manifest" "proxy_monitor" {
       }
       podMetricsEndpoints = [
         {
-          port = "proxy",
+          port = "metrics",
           path = "/metrics"
         }
       ]

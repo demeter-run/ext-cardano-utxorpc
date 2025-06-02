@@ -37,3 +37,27 @@ resource "kubernetes_service_v1" "proxy_service" {
     type = "LoadBalancer"
   }
 }
+
+resource "kubernetes_service_v1" "internal" {
+  for_each = { for network in var.networks : "${network}" => network }
+
+  metadata {
+    name      = "internal-${each.value}-grpc"
+    namespace = var.namespace
+  }
+
+  spec {
+    selector = {
+      "cardano.demeter.run/network" = each.value
+    }
+
+    port {
+      name        = "grpc"
+      port        = 50051
+      target_port = 50051
+      protocol    = "TCP"
+    }
+
+    type = "ClusterIP"
+  }
+}
