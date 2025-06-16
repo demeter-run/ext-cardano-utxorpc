@@ -61,3 +61,27 @@ resource "kubernetes_service_v1" "internal" {
     type = "ClusterIP"
   }
 }
+
+resource "kubernetes_service_v1" "internal_minibf" {
+  for_each = { for network in var.networks : "${network}" => network }
+
+  metadata {
+    name      = "internal-${each.value}-minibf"
+    namespace = var.namespace
+  }
+
+  spec {
+    selector = {
+      "cardano.demeter.run/network" = each.value
+    }
+
+    port {
+      name        = "minibf"
+      port        = 3001
+      target_port = 3001
+      protocol    = "TCP"
+    }
+
+    type = "ClusterIP"
+  }
+}
