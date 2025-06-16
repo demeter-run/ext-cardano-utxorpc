@@ -86,6 +86,12 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
             protocol       = "TCP"
           }
 
+          port {
+            name           = "minibf"
+            container_port = 3001
+            protocol       = "TCP"
+          }
+
           volume_mount {
             name       = "data"
             mount_path = "/var/data"
