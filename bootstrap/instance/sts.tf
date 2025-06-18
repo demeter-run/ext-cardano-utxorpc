@@ -101,6 +101,17 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
             name       = "config"
             mount_path = "/etc/config"
           }
+
+          readiness_probe {
+            tcp_socket {
+              port = 50051
+            }
+            initial_delay_seconds = 10
+            period_seconds        = 5
+            timeout_seconds       = 5
+            failure_threshold     = 3
+            success_threshold     = 1
+          }
         }
 
         container {
@@ -157,6 +168,17 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
             name           = "metrics"
             container_port = local.prometheus_port
             protocol       = "TCP"
+          }
+
+          liveness_probe {
+            tcp_socket {
+              port = local.proxy_port
+            }
+            initial_delay_seconds = 10
+            period_seconds        = 5
+            timeout_seconds       = 5
+            failure_threshold     = 3
+            success_threshold     = 1
           }
 
           volume_mount {
