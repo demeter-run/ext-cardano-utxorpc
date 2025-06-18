@@ -1,4 +1,4 @@
-use prometheus::{opts, register_int_counter_vec};
+use prometheus::{opts, IntCounterVec, Registry};
 use rocket::config::Shutdown;
 use rocket::http::Status;
 use rocket::response::content::RawText;
@@ -11,11 +11,11 @@ use crate::Consumer;
 
 #[derive(Debug, Clone)]
 pub struct Metrics {
-    http_total_request: prometheus::IntCounterVec,
+    http_total_request: IntCounterVec,
 }
 impl Metrics {
-    pub fn new() -> Self {
-        let http_total_request = register_int_counter_vec!(
+    pub fn new(registry: Registry) -> Self {
+        let http_total_request = IntCounterVec::new(
             opts!("utxorpc_proxy_total_requests", "Total requests",),
             &[
                 "consumer",
@@ -23,10 +23,14 @@ impl Metrics {
                 "instance",
                 "status_code",
                 "network",
-                "tier"
-            ]
+                "tier",
+            ],
         )
         .unwrap();
+
+        registry
+            .register(Box::new(http_total_request.clone()))
+            .unwrap();
 
         Self { http_total_request }
     }
@@ -48,11 +52,6 @@ impl Metrics {
                 &consumer.tier,
             ])
             .inc()
-    }
-}
-impl Default for Metrics {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
