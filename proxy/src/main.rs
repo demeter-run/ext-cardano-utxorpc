@@ -5,6 +5,7 @@ use operator::{handle_legacy_networks, kube::ResourceExt, UtxoRpcPort};
 use prometheus::Registry;
 use std::{collections::HashMap, fmt::Display, sync::Arc};
 use tokio::sync::RwLock;
+use tokio_util::sync::CancellationToken;
 use tracing::{info, Level};
 
 mod auth;
@@ -28,22 +29,43 @@ async fn main() {
     )
     .expect("failed to init prometheus layer.");
 
+    let exit = hook_exit_token();
+
     let config = Config::new();
     let state: Arc<State> = Arc::new(State::new(registry).await);
 
     info!("Serving on {}", config.proxy_addr);
     let proxy = async {
-        proxy::serve(state.clone(), &config)
-            .await
-            .expect("Failed to run server")
+        tokio::select! {
+            _  =  proxy::serve(state.clone(), &config)  => {
+
+            }
+            _ = exit.cancelled() => {
+
+            }
+        }
     };
 
     let auth = async {
-        auth::run(state.clone()).await;
+        tokio::select! {
+            _  =  auth::run(state.clone())  => {
+
+            }
+            _ = exit.cancelled() => {
+
+            }
+        }
     };
 
     let metrics = async {
-        metrics::run(&config).await;
+        tokio::select! {
+            _  =  metrics::run(&config)  => {
+
+            }
+            _ = exit.cancelled() => {
+
+            }
+        }
     };
 
     tokio::join!(proxy, auth, metrics);
@@ -99,4 +121,31 @@ impl From<&UtxoRpcPort> for Consumer {
             network,
         }
     }
+}
+
+async fn wait_for_exit_signal() {
+    let mut sigterm =
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()).unwrap();
+
+    tokio::select! {
+        _ = tokio::signal::ctrl_c() => {
+            tracing::warn!("SIGINT detected");
+        }
+        _ = sigterm.recv() => {
+            tracing::warn!("SIGTERM detected");
+        }
+    };
+}
+
+pub fn hook_exit_token() -> CancellationToken {
+    let cancel = CancellationToken::new();
+
+    let cancel2 = cancel.clone();
+    tokio::spawn(async move {
+        wait_for_exit_signal().await;
+        tracing::debug!("notifying exit");
+        cancel2.cancel();
+    });
+
+    cancel
 }
