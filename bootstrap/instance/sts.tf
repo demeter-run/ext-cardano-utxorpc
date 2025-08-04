@@ -38,8 +38,13 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
       spec {
         init_container {
           name  = "init"
-          image = "ghcr.io/txpipe/dolos:${var.dolos_version}"
-          args = [
+          image = var.dolos_image
+          args = var.network == "vector-testnet" ? [
+            "-c",
+            "/etc/config/dolos.toml",
+            "bootstrap",
+            "relay",
+            ] : [
             "-c",
             "/etc/config/dolos.toml",
             "bootstrap",
@@ -63,7 +68,7 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
 
         container {
           name  = local.instance
-          image = "ghcr.io/txpipe/dolos:${var.dolos_version}"
+          image = var.dolos_image
           args = [
             "-c",
             "/etc/config/dolos.toml",
@@ -100,6 +105,16 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
           volume_mount {
             name       = "config"
             mount_path = "/etc/config"
+          }
+
+          dynamic "volume_mount" {
+            for_each = var.network == "vector-testnet" ? toset([1]) : toset([])
+
+            content {
+              name       = "genesis"
+              mount_path = "/genesis"
+            }
+
           }
 
           readiness_probe {
@@ -205,6 +220,18 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
           name = "config"
           config_map {
             name = "configs-${var.network}"
+          }
+        }
+
+        dynamic "volume" {
+          for_each = var.network == "vector-testnet" ? toset([1]) : toset([])
+
+          content {
+            name = "genesis"
+
+            config_map {
+              name = "genesis-${var.network}"
+            }
           }
         }
 

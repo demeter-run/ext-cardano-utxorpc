@@ -49,7 +49,7 @@ variable "cells" {
       volume_name   = optional(string)
     })
     instances = map(object({
-      dolos_version   = string
+      dolos_image     = string
       replicas        = optional(number)
       proxy_image_tag = string
       resources = optional(object({

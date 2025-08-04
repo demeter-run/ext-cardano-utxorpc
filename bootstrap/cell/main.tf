@@ -18,7 +18,7 @@ module "instances" {
   instance_name   = each.key
   network         = each.key
   pvc_name        = "pvc-${var.salt}"
-  dolos_version   = each.value.dolos_version
+  dolos_image     = each.value.dolos_image
   proxy_image_tag = each.value.proxy_image_tag
   replicas        = coalesce(each.value.replicas, 1)
   resources = coalesce(each.value.resources, {

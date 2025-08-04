@@ -24,7 +24,7 @@ variable "replicas" {
   default = 1
 }
 
-variable "dolos_version" {
+variable "dolos_image" {
   type = string
 }
 

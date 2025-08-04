@@ -50,7 +50,7 @@ variable "tolerations" {
 // Instances
 variable "instances" {
   type = map(object({
-    dolos_version   = string
+    dolos_image     = string
     replicas        = optional(number)
     proxy_image_tag = string
     resources = optional(object({
