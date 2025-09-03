@@ -283,6 +283,63 @@ impl u5c::spec::query::query_service_server::QueryService for QueryServiceImpl {
         );
         response
     }
+
+    async fn read_tx(
+        &self,
+        request: Request<u5c::spec::query::ReadTxRequest>,
+    ) -> Result<Response<u5c::spec::query::ReadTxResponse>, Status> {
+        let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
+        info!(consumer =? consumer, "serving QueryService/ReadTx request");
+        let response = self.client().read_tx(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
+    }
+
+    async fn read_genesis(
+        &self,
+        request: Request<u5c::spec::query::ReadGenesisRequest>,
+    ) -> Result<Response<u5c::spec::query::ReadGenesisResponse>, Status> {
+        let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
+        info!(consumer =? consumer, "serving QueryService/ReadGenesis request");
+        let response = self.client().read_genesis(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
+    }
+
+    async fn read_era_summary(
+        &self,
+        request: Request<u5c::spec::query::ReadEraSummaryRequest>,
+    ) -> Result<Response<u5c::spec::query::ReadEraSummaryResponse>, Status> {
+        let consumer = get_consumer(&request, self.state.clone(), &self.config).await?;
+        info!(consumer =? consumer, "serving QueryService/ReadEraSummary request");
+        let response = self.client().read_era_summary(request).await;
+        self.state.metrics.inc_http_total_request(
+            &consumer,
+            &self.config.proxy_namespace,
+            &self.config.upstream,
+            match response {
+                Ok(_) => &200,
+                Err(_) => &500,
+            },
+        );
+        response
+    }
 }
 
 pub struct SubmitServiceImpl {

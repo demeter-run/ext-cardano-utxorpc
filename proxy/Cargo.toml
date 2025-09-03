@@ -30,5 +30,8 @@ tower-http = { version = "0.6.1", features = ["cors", "trace"] }
 tonic_prometheus_layer = "0.1.11"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
-utxorpc =  "0.10.0"
+
+# utxorpc =  "0.11.0"
+utxorpc = { git = "https://github.com/utxorpc/rust-sdk", rev = "8760682" }
+
 rocket = "0.5.1"
