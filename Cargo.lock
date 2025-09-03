@@ -3559,9 +3559,8 @@ checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
 
 [[package]]
 name = "utxorpc"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bea8f520897c0d0b8048413a2ad72044cc5cbc00c98219a750f048be616f3d7f"
+version = "0.11.0"
+source = "git+https://github.com/utxorpc/rust-sdk?rev=8760682#8760682ea8c37bbbd098dba638ccdd0d6902b949"
 dependencies = [
  "bytes",
  "thiserror 1.0.69",
@@ -3572,9 +3571,9 @@ dependencies = [
 
 [[package]]
 name = "utxorpc-spec"
-version = "0.15.0"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9c73cb3e15766a14cbc99fbd6dbbee04496fc9c64b47b088ae1d7698d43e357"
+checksum = "a1d984ee351b308377e118135e638a5d544fdb0855f12a3b088d9dcaf0432052"
 dependencies = [
  "bytes",
  "futures-core",
