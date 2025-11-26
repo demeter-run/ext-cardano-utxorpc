@@ -15,15 +15,18 @@ export PREFIX=${prefix}
 # Initial cleanup in case there was a ungracefull shutdown
 cleanup
 
+# Dependencies
+apt-get update && apt-get install -y awscli jq
+
 # Get latest snapshot and update it
 echo "Bootstrapping dolos from latest snapshot..."
 dolos -c /etc/config/dolos.toml bootstrap snapshot --variant full
 echo "Syncing dolos to reach tip..."
-dolos -c /etc/config/dolos.toml sync --quit-on-tip
+dolos -c /etc/config/dolos.toml sync
 echo "Syncing successful."
 
 # Get tip and substract 1000
-export CURRENT_SLOT=$(dolos -c /etc/config/dolos.toml data summary | grep -E ^slot | sed -E 's@slot: ([0-9]+).*@\1@')
+export CURRENT_SLOT=$(dolos -c /etc/config/dolos.toml data summary | jq '.wal.tip_slot')
 export SLOT_FOR_LEDGER=$((CURRENT_SLOT - 129600))
 
 # Prune wal to minimal size
@@ -36,7 +39,6 @@ cp "/var/data/scratch/$NETWORK/new_wal" "/var/data/$NETWORK/db/wal"
 echo "Generating full snapshot..."
 mkdir -p "/var/data/scratch/$NETWORK"
 dolos -c /etc/config/dolos.toml data export --output "/var/data/scratch/$NETWORK/snapshot.tar.gz" --include-ledger --include-chain
-apt-get update && apt-get install -y awscli
 aws s3 cp "/var/data/scratch/$NETWORK/snapshot.tar.gz" "s3://$BUCKET/$PREFIX/$MAGIC/full/latest.tar.gz" --no-progress
 echo "Full snapshot uploaded."
 
