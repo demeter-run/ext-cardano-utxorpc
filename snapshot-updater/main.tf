@@ -23,6 +23,11 @@ variable "cron" {
   default = "15 0 * * *"
 }
 
+variable "suspend" {
+  type    = bool
+  default = false
+}
+
 variable "dolos_version" {
   type = string
 }
@@ -35,6 +40,11 @@ variable "bucket" {
 variable "prefix" {
   type    = string
   default = "v0"
+}
+
+variable "bootstrap" {
+  type    = string
+  default = "snapshot --variant full"
 }
 
 variable "aws_access_key_id" {

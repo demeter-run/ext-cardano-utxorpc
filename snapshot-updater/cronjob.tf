@@ -6,6 +6,7 @@ resource "kubernetes_cron_job_v1" "cronjob" {
 
   spec {
     schedule = var.cron
+    suspend  = var.suspend
 
     job_template {
       metadata {

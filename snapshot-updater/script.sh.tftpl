@@ -11,6 +11,7 @@ export NETWORK=${network}
 export MAGIC=${magic}
 export BUCKET=${bucket}
 export PREFIX=${prefix}
+export BOOTSTRAP=${bootstrap}
 
 # Initial cleanup in case there was a ungracefull shutdown
 cleanup
@@ -20,7 +21,7 @@ apt-get update && apt-get install -y awscli jq
 
 # Get latest snapshot and update it
 echo "Bootstrapping dolos from latest snapshot..."
-dolos -c /etc/config/dolos.toml bootstrap snapshot --variant full
+dolos -c /etc/config/dolos.toml bootstrap $BOOTSTRAP
 echo "Syncing dolos to reach tip..."
 dolos -c /etc/config/dolos.toml sync
 echo "Syncing successful."

@@ -44,10 +44,11 @@ resource "kubernetes_config_map" "config" {
     "script.sh" = "${templatefile(
       "${path.module}/script.sh.tftpl",
       {
-        network = var.network
-        bucket  = var.bucket
-        prefix  = var.prefix
-        magic   = local.config[var.network]["magic"]
+        network   = var.network
+        bucket    = var.bucket
+        prefix    = var.prefix
+        magic     = local.config[var.network]["magic"]
+        bootstrap = var.bootstrap
       }
     )}",
   }

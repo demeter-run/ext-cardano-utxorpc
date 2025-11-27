@@ -6,6 +6,7 @@ is_testnet = ${is_testnet}
 [storage]
 path = "/var/data/${network}/db"
 max_wal_history = 129600
+version = "v2"
 
 [genesis]
 byron_path = "/etc/genesis/${network}/byron.json"
@@ -32,3 +33,18 @@ permissive_cors = true
 [mithril]
 aggregator = "${mithril_aggregator}"
 genesis_key = "${mithril_genesis_key}"
+
+[chain]
+type = "cardano"
+
+[chain.track]
+account_state = true
+asset_state = true
+pool_state = true
+epoch_state = true
+drep_state = true
+proposal_logs = true
+tx_logs = true
+account_logs = true
+pool_logs = true
+epoch_logs = true
