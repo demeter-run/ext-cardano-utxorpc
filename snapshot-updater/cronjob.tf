@@ -1,6 +1,6 @@
 resource "kubernetes_cron_job_v1" "cronjob" {
   metadata {
-    name      = "snapshot-updater-${var.network}-${var.prefix}-cronjob"
+    name      = "${var.name}-${var.network}-${var.prefix}-cronjob"
     namespace = var.namespace
   }
 

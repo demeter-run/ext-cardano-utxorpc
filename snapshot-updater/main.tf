@@ -1,5 +1,10 @@
 locals {
-  configmap_name = "snapshot-updater-config-${var.network}-${var.prefix}"
+  configmap_name = "${var.name}-config-${var.network}-${var.prefix}"
+}
+
+variable "name" {
+  type    = string
+  default = "snapshot-updater"
 }
 
 variable "namespace" {
