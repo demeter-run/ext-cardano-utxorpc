@@ -39,7 +39,7 @@ variable "bucket" {
 
 variable "prefix" {
   type    = string
-  default = "v0"
+  default = "v2"
 }
 
 variable "bootstrap" {
