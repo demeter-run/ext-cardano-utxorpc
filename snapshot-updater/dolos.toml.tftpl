@@ -4,15 +4,31 @@ network_magic = ${magic}
 is_testnet = ${is_testnet}
 
 [storage]
+version = "v3"
 path = "/var/data/${network}/db"
-max_wal_history = 129600
-version = "v2"
+path = "data"
+
+[storage.wal]
+backend = "redb"
+max_history = 25920
+
+[storage.state]
+backend = "fjall"
+
+[storage.archive]
+backend = "redb"
+
+[storage.index]
+backend = "fjall"
 
 [genesis]
 byron_path = "/etc/genesis/${network}/byron.json"
 shelley_path = "/etc/genesis/${network}/shelley.json"
 alonzo_path = "/etc/genesis/${network}/alonzo.json"
 conway_path = "/etc/genesis/${network}/conway.json"
+{% if network == "preview" %}
+force_protocol = 6
+{% endif %}
 
 [sync]
 pull_batch_size = 100
@@ -36,6 +52,7 @@ genesis_key = "${mithril_genesis_key}"
 
 [chain]
 type = "cardano"
+custom_utxos = []
 
 [chain.track]
 account_state = true
@@ -43,8 +60,17 @@ asset_state = true
 pool_state = true
 epoch_state = true
 drep_state = true
+datum_state = true
 proposal_logs = true
 tx_logs = true
 account_logs = true
 pool_logs = true
 epoch_logs = true
+
+[logging]
+max_level = "INFO"
+include_tokio = false
+include_pallas = false
+include_grpc = false
+include_trp = false
+include_minibf = false

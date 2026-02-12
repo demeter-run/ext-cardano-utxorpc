@@ -26,26 +26,17 @@ echo "Syncing dolos to reach tip..."
 dolos -c /etc/config/dolos.toml sync
 echo "Syncing successful."
 
-# Get tip and substract 1000
-export CURRENT_SLOT=$(dolos -c /etc/config/dolos.toml data summary | jq '.wal.tip_slot')
-export SLOT_FOR_LEDGER=$((CURRENT_SLOT - 129600))
-
-# Prune wal to minimal size
-echo "Pruning WAL to mutable size..."
-mkdir -p "/var/data/scratch/$NETWORK"
-dolos -c /etc/config/dolos.toml data copy-wal --since "$SLOT_FOR_LEDGER" --output "/var/data/scratch/$NETWORK/new_wal"
-cp "/var/data/scratch/$NETWORK/new_wal" "/var/data/$NETWORK/db/wal"
-
 # Make and upload full snapshot
 echo "Generating full snapshot..."
 mkdir -p "/var/data/scratch/$NETWORK"
-dolos -c /etc/config/dolos.toml data export --output "/var/data/scratch/$NETWORK/snapshot.tar.gz" --include-state --include-chain
+cd /var/data/$NETWORK/db
+dolos -c /etc/config/dolos.toml data export --output "/var/data/scratch/$NETWORK/snapshot.tar.gz" --include-state --include-archive --include--indexes
 aws s3 cp "/var/data/scratch/$NETWORK/snapshot.tar.gz" "s3://$BUCKET/$PREFIX/$MAGIC/full/latest.tar.gz" --no-progress
 echo "Full snapshot uploaded."
 
 # Ledger
 echo "Generating ledger snapshot..."
-dolos -c /etc/config/dolos.toml data export --output "/var/data/scratch/$NETWORK/ledger.tar.gz" --include-state 
+dolos -c /etc/config/dolos.toml data export --output "/var/data/scratch/$NETWORK/ledger.tar.gz" --include-state --include-indexes
 aws s3 cp "/var/data/scratch/$NETWORK/ledger.tar.gz" "s3://$BUCKET/$PREFIX/$MAGIC/ledger/latest.tar.gz" --no-progress
 echo "Ledger snapshot uploaded."
 
