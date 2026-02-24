@@ -30,7 +30,7 @@ echo "Syncing successful."
 echo "Generating full snapshot..."
 mkdir -p "/var/data/scratch/$NETWORK"
 cd /var/data/$NETWORK/db
-dolos -c /etc/config/dolos.toml data export --output "/var/data/scratch/$NETWORK/snapshot.tar.gz" --include-state --include-archive --include--indexes
+dolos -c /etc/config/dolos.toml data export --output "/var/data/scratch/$NETWORK/snapshot.tar.gz" --include-state --include-archive --include-indexes
 aws s3 cp "/var/data/scratch/$NETWORK/snapshot.tar.gz" "s3://$BUCKET/$PREFIX/$MAGIC/full/latest.tar.gz" --no-progress
 echo "Full snapshot uploaded."
 
