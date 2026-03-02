@@ -1,31 +1,33 @@
 locals {
-  instance = "${var.instance_name}-${var.salt}"
+  name = "proxy-${var.network}"
+  role = "proxy-${var.network}"
+
+  prometheus_port = 9187
+  prometheus_addr = "0.0.0.0:${local.prometheus_port}"
+  proxy_port      = 8080
+  proxy_addr      = "0.0.0.0:${local.proxy_port}"
 }
 
-variable "namespace" {}
+variable "namespace" {
+  type = string
+}
 
 variable "network" {
   type = string
 }
 
-variable "salt" {
-  type = string
-}
-
-variable "pvc_name" {
-  type = string
-}
-
-variable "instance_name" {
-  type = string
-}
-
 variable "replicas" {
+  type    = number
   default = 1
 }
 
-variable "dolos_image" {
+variable "image_tag" {
   type = string
+}
+
+variable "certs_secret_name" {
+  type    = string
+  default = null
 }
 
 variable "tolerations" {
@@ -39,14 +41,13 @@ variable "tolerations" {
     {
       effect   = "NoSchedule"
       key      = "demeter.run/compute-profile"
-      operator = "Equal"
-      value    = "general-purpose"
+      operator = "Exists"
     },
     {
       effect   = "NoSchedule"
       key      = "demeter.run/compute-arch"
       operator = "Equal"
-      value    = "x86"
+      value    = "arm64"
     },
     {
       effect   = "NoSchedule"
@@ -60,7 +61,7 @@ variable "tolerations" {
 variable "resources" {
   type = object({
     limits = object({
-      cpu    = optional(string)
+      cpu    = string
       memory = string
     })
     requests = object({
@@ -69,13 +70,13 @@ variable "resources" {
     })
   })
   default = {
-    requests = {
-      cpu    = "50m"
-      memory = "512Mi"
+    limits : {
+      cpu : "2000m",
+      memory : "250Mi"
     }
-    limits = {
-      cpu    = "1000m"
-      memory = "512Mi"
+    requests : {
+      cpu : "50m",
+      memory : "250Mi"
     }
   }
 }

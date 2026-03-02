@@ -32,6 +32,20 @@ module "services" {
   networks  = var.networks
 }
 
+module "proxies" {
+  depends_on = [kubernetes_namespace_v1.namespace]
+  source     = "./proxy"
+  for_each   = { for network in var.networks : "${network}" => network }
+
+  namespace         = var.namespace
+  network           = each.value
+  image_tag         = var.proxies_image_tag
+  replicas          = var.proxies_replicas
+  resources         = var.proxies_resources
+  tolerations       = var.proxies_tolerations
+  certs_secret_name = "utxorpc-${each.key}-proxy-wildcard-tls"
+}
+
 module "cells" {
   depends_on = [module.configs, module.feature]
   for_each   = var.cells

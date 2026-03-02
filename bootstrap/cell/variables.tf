@@ -50,20 +50,9 @@ variable "tolerations" {
 // Instances
 variable "instances" {
   type = map(object({
-    dolos_image     = string
-    replicas        = optional(number)
-    proxy_image_tag = string
+    dolos_image = string
+    replicas    = optional(number)
     resources = optional(object({
-      limits = object({
-        cpu    = string
-        memory = string
-      })
-      requests = object({
-        cpu    = string
-        memory = string
-      })
-    }))
-    proxy_resources = optional(object({
       limits = object({
         cpu    = string
         memory = string

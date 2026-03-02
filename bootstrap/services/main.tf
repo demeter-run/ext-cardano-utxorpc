@@ -7,34 +7,26 @@ variable "networks" {
   default = ["cardano-mainnet", "cardano-preprod", "cardano-preview", "cardano-vector-testnet"]
 }
 
-resource "kubernetes_service_v1" "proxy_service" {
+resource "kubernetes_service_v1" "well_known_service_grpc" {
   for_each = { for network in var.networks : "${network}" => network }
 
   metadata {
     name      = "utxorpc-${each.value}-grpc"
     namespace = var.namespace
-
-    annotations = {
-      "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type" : "instance"
-      "service.beta.kubernetes.io/aws-load-balancer-scheme" : "internet-facing"
-      "service.beta.kubernetes.io/aws-load-balancer-type" : "external"
-    }
   }
 
   spec {
-    load_balancer_class = "service.k8s.aws/nlb"
+    port {
+      name     = "grpc"
+      protocol = "TCP"
+      port     = 50051
+    }
+
     selector = {
       "cardano.demeter.run/network" = each.value
     }
 
-    port {
-      name        = "proxy"
-      port        = 443
-      target_port = 8080
-      protocol    = "TCP"
-    }
-
-    type = "LoadBalancer"
+    type = "ClusterIP"
   }
 }
 
