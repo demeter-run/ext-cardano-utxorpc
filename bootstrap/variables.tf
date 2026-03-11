@@ -35,6 +35,10 @@ variable "proxies_image_tag" {
   type = string
 }
 
+variable "instance_per_network" {
+  type = map(string)
+}
+
 variable "proxies_replicas" {
   type    = number
   default = 1

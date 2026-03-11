@@ -85,7 +85,7 @@ impl ProxyHttp for UtxoRpcProxy {
             return session.respond_error(404).await.map(|_| true);
         }
 
-        ctx.instance = self.config.instance();
+        ctx.instance = self.config.utxorpc_instance.clone();
 
         Ok(false)
     }

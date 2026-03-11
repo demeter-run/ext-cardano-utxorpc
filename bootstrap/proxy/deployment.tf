@@ -72,8 +72,8 @@ resource "kubernetes_deployment_v1" "utxorpc_proxy" {
           }
 
           env {
-            name  = "UTXORPC_DNS"
-            value = "${var.namespace}.svc.cluster.local"
+            name  = "UTXORPC_INSTANCE"
+            value = var.utxorpc_instance
           }
 
           env {

@@ -38,6 +38,7 @@ module "proxies" {
   for_each   = { for network in var.networks : "${network}" => network }
 
   namespace         = var.namespace
+  utxorpc_instance  = var.instance_per_network[each.key]
   network           = each.value
   image_tag         = var.proxies_image_tag
   replicas          = var.proxies_replicas

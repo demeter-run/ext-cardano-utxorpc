@@ -16,6 +16,10 @@ variable "network" {
   type = string
 }
 
+variable "utxorpc_instance" {
+  type = string
+}
+
 variable "replicas" {
   type    = number
   default = 1
