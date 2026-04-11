@@ -44,15 +44,17 @@ pub fn handle_legacy_networks(network: &str) -> String {
     LEGACY_NETWORKS.get(network).unwrap_or(&default).to_string()
 }
 
-pub fn build_hostname(key: &str, network: &str) -> (String, String) {
+pub fn build_hostname(key: &str, network: &str) -> Result<(String, String), crate::Error> {
     let hostname = get_config()
         .extension_url_per_network
         .get(network)
-        .unwrap() // Risky but we know it's there
+        .ok_or_else(|| {
+            crate::Error::ParseNetworkError(format!("unsupported network: {network}"))
+        })?
         .to_string();
     let hostname_key = format!("{key}.{hostname}");
 
-    (hostname, hostname_key)
+    Ok((hostname, hostname_key))
 }
 
 pub async fn build_api_key(crd: &UtxoRpcPort) -> Result<String, Error> {
@@ -128,7 +130,7 @@ mod test {
     async fn test_build_hostname() {
         set_configs();
         let key = "dmtr_utxorpc_v1_preview_ashjdcnoasdj";
-        let (hostname, hostname_key) = build_hostname(key, "mainnet");
+        let (hostname, hostname_key) = build_hostname(key, "mainnet").unwrap();
 
         assert_eq!(hostname, "mainnet-extension_subdomain.dns_zone".to_string());
         assert_eq!(
