@@ -1,7 +1,5 @@
 [upstream]
 peer_address = "${address}"
-network_magic = ${magic}
-is_testnet = ${is_testnet}
 
 [storage]
 version = "v3"
@@ -46,20 +44,9 @@ genesis_key = "${mithril_genesis_key}"
 
 [chain]
 type = "cardano"
+magic = ${magic}
+is_testnet = ${is_testnet}
 custom_utxos = []
-
-[chain.track]
-account_state = true
-asset_state = true
-pool_state = true
-epoch_state = true
-drep_state = true
-datum_state = true
-proposal_logs = true
-tx_logs = true
-account_logs = true
-pool_logs = true
-epoch_logs = true
 
 [logging]
 max_level = "INFO"
