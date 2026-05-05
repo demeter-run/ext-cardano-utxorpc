@@ -32,19 +32,38 @@ module "services" {
   networks  = var.networks
 }
 
-module "proxies" {
+module "proxies_blue" {
   depends_on = [kubernetes_namespace_v1.namespace]
   source     = "./proxy"
-  for_each   = { for network in var.networks : "${network}" => network }
 
   namespace         = var.namespace
-  utxorpc_instance  = var.instance_per_network[each.key]
-  network           = each.value
-  image_tag         = var.proxies_image_tag
-  replicas          = var.proxies_replicas
-  resources         = var.proxies_resources
-  tolerations       = var.proxies_tolerations
-  certs_secret_name = "utxorpc-${each.key}-proxy-wildcard-tls"
+  name              = "proxy-blue"
+  environment       = "blue"
+  utxorpc_instances = var.proxy_blue_instance_per_network
+  image_tag         = var.proxy_blue_image_tag
+  replicas          = var.proxy_blue_replicas
+  resources         = var.proxy_blue_resources
+  tolerations       = var.proxy_blue_tolerations
+  certs_secret_name = "utxorpc-proxy-blue-wildcard-tls"
+  cluster_issuer    = var.cluster_issuer
+  dns_names         = distinct(flatten(values(var.extension_urls_per_network)))
+}
+
+module "proxies_green" {
+  depends_on = [kubernetes_namespace_v1.namespace]
+  source     = "./proxy"
+
+  namespace         = var.namespace
+  name              = "proxy-green"
+  environment       = "green"
+  utxorpc_instances = var.proxy_green_instance_per_network
+  image_tag         = var.proxy_green_image_tag
+  replicas          = var.proxy_green_replicas
+  resources         = var.proxy_green_resources
+  tolerations       = var.proxy_green_tolerations
+  certs_secret_name = "utxorpc-proxy-green-wildcard-tls"
+  cluster_issuer    = var.cluster_issuer
+  dns_names         = distinct(flatten(values(var.extension_urls_per_network)))
 }
 
 module "cells" {

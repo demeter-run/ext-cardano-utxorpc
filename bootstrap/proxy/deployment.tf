@@ -1,5 +1,6 @@
 resource "kubernetes_deployment_v1" "utxorpc_proxy" {
   wait_for_rollout = false
+  depends_on       = [kubernetes_manifest.certificate_cluster_wildcard_tls]
 
   metadata {
     name      = local.name
@@ -52,11 +53,6 @@ resource "kubernetes_deployment_v1" "utxorpc_proxy" {
           }
 
           env {
-            name  = "NETWORK"
-            value = var.network
-          }
-
-          env {
             name  = "PROXY_NAMESPACE"
             value = var.namespace
           }
@@ -72,8 +68,13 @@ resource "kubernetes_deployment_v1" "utxorpc_proxy" {
           }
 
           env {
-            name  = "UTXORPC_INSTANCE"
-            value = var.utxorpc_instance
+            name  = "UTXORPC_INSTANCES"
+            value = jsonencode(var.utxorpc_instances)
+          }
+
+          env {
+            name  = "HEALTH_NETWORK"
+            value = "cardano-mainnet"
           }
 
           env {

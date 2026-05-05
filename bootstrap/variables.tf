@@ -2,6 +2,11 @@ variable "namespace" {
   type = string
 }
 
+variable "cluster_issuer" {
+  type    = string
+  default = "letsencrypt-dns01"
+}
+
 variable "networks" {
   type    = list(string)
   default = ["cardano-mainnet", "cardano-preprod", "cardano-preview"]
@@ -31,20 +36,20 @@ variable "prometheus_url" {
 }
 
 // Proxies
-variable "proxies_image_tag" {
+variable "proxy_blue_image_tag" {
   type = string
 }
 
-variable "instance_per_network" {
+variable "proxy_blue_instance_per_network" {
   type = map(string)
 }
 
-variable "proxies_replicas" {
+variable "proxy_blue_replicas" {
   type    = number
   default = 1
 }
 
-variable "proxies_resources" {
+variable "proxy_blue_resources" {
   type = object({
     limits = object({
       cpu    = string
@@ -67,7 +72,70 @@ variable "proxies_resources" {
   }
 }
 
-variable "proxies_tolerations" {
+variable "proxy_blue_tolerations" {
+  type = list(object({
+    effect   = string
+    key      = string
+    operator = string
+    value    = optional(string)
+  }))
+  default = [
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-profile"
+      operator = "Exists"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-arch"
+      operator = "Equal"
+      value    = "arm64"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/availability-sla"
+      operator = "Exists"
+    }
+  ]
+}
+
+variable "proxy_green_image_tag" {
+  type = string
+}
+
+variable "proxy_green_instance_per_network" {
+  type = map(string)
+}
+
+variable "proxy_green_replicas" {
+  type    = number
+  default = 1
+}
+
+variable "proxy_green_resources" {
+  type = object({
+    limits = object({
+      cpu    = string
+      memory = string
+    })
+    requests = object({
+      cpu    = string
+      memory = string
+    })
+  })
+  default = {
+    limits : {
+      cpu : "2"
+      memory : "250Mi"
+    }
+    requests : {
+      cpu : "50m"
+      memory : "250Mi"
+    }
+  }
+}
+
+variable "proxy_green_tolerations" {
   type = list(object({
     effect   = string
     key      = string

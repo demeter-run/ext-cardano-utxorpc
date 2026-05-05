@@ -1,6 +1,6 @@
 locals {
-  name = "proxy-${var.network}"
-  role = "proxy-${var.network}"
+  name = var.name
+  role = var.environment != null ? "proxy-${var.environment}" : "proxy"
 
   prometheus_port = 9187
   prometheus_addr = "0.0.0.0:${local.prometheus_port}"
@@ -8,16 +8,21 @@ locals {
   proxy_addr      = "0.0.0.0:${local.proxy_port}"
 }
 
+variable "name" {
+  type    = string
+  default = "proxy"
+}
+
 variable "namespace" {
   type = string
 }
 
-variable "network" {
-  type = string
+variable "environment" {
+  default = null
 }
 
-variable "utxorpc_instance" {
-  type = string
+variable "utxorpc_instances" {
+  type = map(string)
 }
 
 variable "replicas" {
@@ -30,8 +35,16 @@ variable "image_tag" {
 }
 
 variable "certs_secret_name" {
+  type = string
+}
+
+variable "dns_names" {
+  type = list(string)
+}
+
+variable "cluster_issuer" {
   type    = string
-  default = null
+  default = "letsencrypt-dns01"
 }
 
 variable "tolerations" {
