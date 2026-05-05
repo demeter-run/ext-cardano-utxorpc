@@ -11,9 +11,8 @@ This proxy will allow SubmitApi to be accessed externally.
 | PROMETHEUS_ADDR   | 0.0.0.0:9090            |
 | SSL_CRT_PATH      | /localhost.crt          |
 | SSL_KEY_PATH      | /localhost.key          |
-| SUBMITAPI_PORT    |                         |
-| SUBMITAPI_DNS     | internal k8s dns        |
-| PROXY_TIERS_PATH  | path of tiers toml file |
+| UTXORPC_INSTANCES | JSON map of network to internal k8s dns |
+| HEALTH_NETWORK    | health upstream network, defaults to cardano-mainnet |
 
 ## Rate limit
 To define rate limits, it's necessary to create a file with the limiters available that the ports can use. The request limit of each tier can be configured using `s = second`, `m = minute`, `h = hour` and `d = day` eg: `5s` bucket of 5 seconds.

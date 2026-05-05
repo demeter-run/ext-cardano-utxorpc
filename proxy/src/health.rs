@@ -15,12 +15,25 @@ impl HealthBackgroundService {
     }
 
     async fn get_health(&self) -> bool {
-        match tokio::net::TcpStream::connect(&self.config.utxorpc_instance).await {
+        let Some(instance) = self
+            .config
+            .utxorpc_instances
+            .get(&self.config.health_network)
+            .cloned()
+        else {
+            warn!(
+                network = self.config.health_network,
+                "Health network is missing from UTXORPC_INSTANCES"
+            );
+            return false;
+        };
+
+        match tokio::net::TcpStream::connect(&instance).await {
             Ok(_) => true,
             Err(err) => {
                 warn!(
                     error = %err,
-                    instance = %self.config.utxorpc_instance,
+                    instance = %instance,
                     "Error pinging instance for health."
                 );
                 false

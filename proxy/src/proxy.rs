@@ -28,6 +28,13 @@ impl UtxoRpcProxy {
             .to_string()
     }
 
+    fn upstream_instance(&self, network: &str) -> Option<&str> {
+        self.config
+            .utxorpc_instances
+            .get(network)
+            .map(String::as_str)
+    }
+
     async fn respond_health(&self, session: &mut Session, ctx: &mut Context) {
         ctx.is_health_request = true;
         session.set_keepalive(None);
@@ -81,11 +88,11 @@ impl ProxyHttp for UtxoRpcProxy {
             }
         };
 
-        if ctx.consumer.network != self.config.network {
-            return session.respond_error(404).await.map(|_| true);
-        }
+        let Some(instance) = self.upstream_instance(&ctx.consumer.network) else {
+            return session.respond_error(502).await.map(|_| true);
+        };
 
-        ctx.instance = self.config.utxorpc_instance.clone();
+        ctx.instance = instance.to_string();
 
         Ok(false)
     }
