@@ -166,7 +166,7 @@ pub fn run_metrics_collector(state: Arc<State>) {
             let response =  client
             .get(format!(
                 "{}/query_range?query=sum by (consumer, network, tier) (utxorpc_proxy_total_requests{{status_code!~\"401|429|503\"}})",
-                &config.prometheus_url
+                config.prometheus_url
             ))
             .query(&[
                 ("start", start.timestamp().to_string()),

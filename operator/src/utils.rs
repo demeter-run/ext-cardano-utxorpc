@@ -66,7 +66,7 @@ pub async fn build_api_key(crd: &UtxoRpcPort) -> Result<String, Error> {
         .clone()
         .unwrap_or(config.default_utxorpc_version.clone());
 
-    let name = format!("utxorpc-auth-{}", &crd.name_any());
+    let name = format!("utxorpc-auth-{}", crd.name_any());
     let password = format!("{}{}", name, namespace).as_bytes().to_vec();
 
     let salt = config.api_key_salt.as_bytes();
