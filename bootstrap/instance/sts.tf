@@ -28,6 +28,8 @@ resource "kubernetes_stateful_set_v1" "utxorpc" {
         }
       }
       spec {
+        automount_service_account_token = false
+
         init_container {
           name  = "init"
           image = var.dolos_image

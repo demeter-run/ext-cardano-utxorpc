@@ -24,6 +24,8 @@ resource "kubernetes_deployment_v1" "utxorpc_proxy" {
         }
       }
       spec {
+        service_account_name = "proxy"
+
         container {
           name              = "main"
           image             = "ghcr.io/demeter-run/ext-cardano-utxorpc-proxy:${var.image_tag}"
