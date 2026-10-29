@@ -6,7 +6,7 @@ resource "kubernetes_cluster_role_v1" "operator" {
   rule {
     api_groups = ["demeter.run"]
     resources  = ["utxorpcports"]
-    verbs      = ["get", "list", "watch", "patch"]
+    verbs      = ["get", "list", "watch"]
   }
 
   rule {
